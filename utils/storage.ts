@@ -1,9 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  syncResultToFirestore,
-  syncBookmarkToFirestore,
-  deleteBookmarkFromFirestore,
-} from "./firebase";
 
 export type Language = "ar" | "en";
 // questionId -> original option index from the source JSON, never the shuffled display position
@@ -115,6 +110,7 @@ export async function saveResult(result: Omit<QuizResult, "id" | "date">): Promi
     };
     const updated = [newResult, ...existing].slice(0, 200);
     await writeJson(KEYS.results, updated);
+    const { syncResultToFirestore } = await import("./firebase");
     await syncResultToFirestore(newResult);
   } catch (error) {
     console.error("saveResult error:", error);
@@ -215,6 +211,7 @@ export async function saveBookmark(questionId: string, subjectId: string): Promi
 
     const updated = [...existing, newBookmark];
     await writeJson(KEYS.bookmarks, updated);
+    const { syncBookmarkToFirestore } = await import("./firebase");
     await syncBookmarkToFirestore(newBookmark);
   } catch (error) {
     console.error("saveBookmark error:", error);
@@ -226,6 +223,7 @@ export async function removeBookmark(questionId: string): Promise<void> {
     const existing = await getBookmarks();
     const updated = existing.filter((bookmark) => bookmark.questionId !== questionId);
     await writeJson(KEYS.bookmarks, updated);
+    const { deleteBookmarkFromFirestore } = await import("./firebase");
     await deleteBookmarkFromFirestore(questionId);
   } catch (error) {
     console.error("removeBookmark error:", error);
