@@ -109,6 +109,10 @@ async function performResultSave(result: QuizResult): Promise<void> {
   await setDoc(doc(db, "users", uid, "results", result.id), result);
 }
 
+export async function directSaveResultToFirestore(result: QuizResult): Promise<void> {
+  await performResultSave(result);
+}
+
 async function performResultDelete(resultId: string): Promise<void> {
   const uid = await ensureAuth();
   await deleteDoc(doc(db, "users", uid, "results", resultId));
@@ -117,6 +121,10 @@ async function performResultDelete(resultId: string): Promise<void> {
 async function performBookmarkSave(bookmark: Bookmark): Promise<void> {
   const uid = await ensureAuth();
   await setDoc(doc(db, "users", uid, "bookmarks", bookmark.questionId), bookmark);
+}
+
+export async function directSaveBookmarkToFirestore(bookmark: Bookmark): Promise<void> {
+  await performBookmarkSave(bookmark);
 }
 
 async function performBookmarkDelete(questionId: string): Promise<void> {

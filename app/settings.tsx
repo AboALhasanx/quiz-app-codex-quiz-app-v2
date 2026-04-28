@@ -13,11 +13,13 @@ import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import { useTheme } from "../utils/ThemeContext";
 import { exportAllData, importAllData } from "../utils/dataTransfer";
+import { flushAllLocalToFirebase } from "../utils/syncManager";
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const handleExport = async () => {
     setExporting(true);
@@ -28,6 +30,21 @@ export default function SettingsScreen() {
       Alert.alert("خطأ", error?.message ?? "حدث خطأ أثناء التصدير");
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const result = await flushAllLocalToFirebase();
+      Alert.alert(
+        "تمت المزامنة",
+        `${result.synced.results} نتيجة، ${result.synced.bookmarks} محفوظة`
+      );
+    } catch (error: any) {
+      Alert.alert("خطأ", error?.message ?? "حدث خطأ أثناء المزامنة");
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -67,6 +84,30 @@ export default function SettingsScreen() {
         </TouchableOpacity>
         <Text style={[s.title, { color: theme.textPrimary }]}>الإعدادات</Text>
       </View>
+
+      <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>
+        المزامنة
+      </Text>
+
+      <TouchableOpacity
+        style={[s.card, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}
+        onPress={handleSync}
+        disabled={syncing}
+        activeOpacity={0.8}
+      >
+        {syncing ? (
+          <ActivityIndicator size="small" color={theme.primary} />
+        ) : (
+          <Ionicons name="sync-outline" size={28} color={theme.primary} />
+        )}
+        <View style={s.cardText}>
+          <Text style={[s.cardTitle, { color: theme.textPrimary }]}>مزامنة مع السحابة</Text>
+          <Text style={[s.cardSubtitle, { color: theme.textSecondary }]}>
+            رفع جميع البيانات المحلية إلى Firebase
+          </Text>
+        </View>
+        <Ionicons name="chevron-back" size={20} color={theme.textSecondary} />
+      </TouchableOpacity>
 
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>
         البيانات المحلية

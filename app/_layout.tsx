@@ -3,10 +3,11 @@ import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, flushSyncQueue } from "../utils/firebase";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, AppState } from "react-native";
 import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from "@react-navigation/native";
 import * as SystemUI from "expo-system-ui";
 import { AppThemeProvider, useTheme } from "../utils/ThemeContext";
+import { flushAllLocalToFirebase } from "../utils/syncManager";
 
 function AppContent() {
   const { isDark, theme } = useTheme();
@@ -30,7 +31,7 @@ function AppContent() {
       setChecking(false);
     }
 
-    const unsub = onAuthStateChanged(auth, (user) => {
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         void flushSyncQueue();
         router.replace("/(tabs)");
@@ -39,7 +40,21 @@ function AppContent() {
       }
       setChecking(false);
     });
-    return unsub;
+
+    const handleAppState = (nextState: string) => {
+      if (nextState === "active" && auth.currentUser) {
+        flushAllLocalToFirebase().catch((error) => {
+          console.log("Auto-sync on foreground:", error?.message ?? error);
+        });
+      }
+    };
+
+    const unsubAppState = AppState.addEventListener("change", handleAppState);
+
+    return () => {
+      unsubAuth();
+      unsubAppState.remove();
+    };
   }, []);
 
   if (checking) {

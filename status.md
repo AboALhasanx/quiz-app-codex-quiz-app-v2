@@ -52,7 +52,7 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 2 | ⬅️ Prev/Next navigation in recitation mode | ✅ Done | Last Q shows "Finish" with Alert confirm |
 | 3 | 📚 Bookmarks Quiz | ✅ Done | Button in bookmarks tab, source=bookmarks param |
 | 4 | 📤 Export / Import local data as file | ✅ Done | utils/dataTransfer.ts, app/settings.tsx |
-| 5 | ☁️ Full Offline-first Sync | 🔲 TODO | Push ALL local → Firebase when online |
+| 5 | ☁️ Full Offline-first Sync | ✅ Done | utils/syncManager.ts, auto on foreground + manual in settings |
 
 ---
 
@@ -103,10 +103,12 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 2026-04-28 | Phase 3 item 2: Prev/Next navigation in recitation mode |
 | 2026-04-28 | Phase 3 item 3: Bookmarks Quiz feature |
 | 2026-04-28 | Phase 3 item 4: Export/Import data feature |
+| 2026-04-28 | Phase 3 item 5: Offline-first Sync — all Phase 3 features complete |
 
 ---
 
 ## How to Resume
 1. Read this file first
-2. Next task: Bookmarks Quiz (Phase 3 item #3)
-3. Use `use build` in opencode for all code changes
+2. All Phase 3 features complete ✅
+3. Next: APK build — re-enable sound (search TODO: AUDIO), then run eas build
+4. Use `use build` in opencode for all code changes
