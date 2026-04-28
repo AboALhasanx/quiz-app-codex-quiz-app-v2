@@ -747,9 +747,7 @@ export default function QuizPlayScreen() {
             </Text>
           </TouchableOpacity>
         )}
-      </ScrollView>
-
-      {mode === "paper" && (
+        {mode === "paper" && (
         <View style={[s.navRow, current === 0 && s.navRowSingle]}>
           {current > 0 && (
             <TouchableOpacity
@@ -769,12 +767,15 @@ export default function QuizPlayScreen() {
               size={20}
               color="#fff"
             />
-            <Text style={s.navBtnNextText}>
+            <Text style={s.navBtnNextText }>
               {current + 1 >= questions.length ? "إنهاء" : "التالي"}
             </Text>
           </TouchableOpacity>
         </View>
       )}
+      </ScrollView>
+
+      
 
       <View style={s.fabArea} pointerEvents="box-none">
         {fabOpen && (
@@ -891,13 +892,19 @@ const s = StyleSheet.create({
     justifyContent: "center",
     elevation: 4,
   },
-  navRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 12,
-  },
+navRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  paddingHorizontal: 16,
+  paddingTop: 10,
+  // زدنا هذا الرقم ليتجاوز منطقة الأمان في الموبايل
+  paddingBottom: 100, 
+  // أضفنا margin لرفع الحاوية نفسها عن قاع الشاشة
+  marginBottom: 10,  
+  gap: 12,
+  // اختياري: أضف لون خلفية بسيط لتتأكد من مكان الحاوية أثناء البرمجة
+  // backgroundColor: 'rgba(255,0,0,0.1)', 
+},
   navRowSingle: {
     justifyContent: "flex-end",
   },
