@@ -107,6 +107,7 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 2026-04-28 | Phase 4: Settings tab created, logout moved, PDF placeholder added |
 | 2026-04-28 | Phase 4 item 6: Bookmarks Quiz goes through setup screen |
 | 2026-04-28 | Phase 4 item 7: Paper mode reworked — no immediate feedback, end-of-quiz correction |
+| 2026-04-28 | Phase 4 items 8-10: Fixed bookmarks quiz — 0% result, subject filter, setup params |
 
 ---
 
@@ -121,6 +122,9 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 5 | EAS APK build | 🔲 TODO | eas build -p android --profile preview |
 | 6 | Fix bookmarks quiz → goes through setup | ✅ Done | source=bookmarks param in setup.tsx |
 | 7 | Fix paper mode: no immediate feedback, finish with unanswered check | ✅ Done | getOptionStyle reworked, finish alert added |
+| 8 | Fix bookmarks quiz 0% result (multi-subject lookup in result.tsx) | ✅ Done | resolveQuestionsByIds() iterates all subjects |
+| 9 | Fix bookmarks subject filter passed to quiz | ✅ Done | filterSubjectId param through bookmarks→setup→play |
+| 10 | Apply order/percentage/hardMode in loadBookmarkQuestions | ✅ Done | |
 
 ---
 

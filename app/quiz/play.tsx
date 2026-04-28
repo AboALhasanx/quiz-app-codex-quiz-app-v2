@@ -95,6 +95,7 @@ export default function QuizPlayScreen() {
     percentage?: string;
     lang?: string;
     source?: string;
+    filterSubjectId?: string;
   }>();
   const router = useRouter();
 
@@ -187,8 +188,22 @@ export default function QuizPlayScreen() {
       return;
     }
 
+    // Apply subject filter if provided
+    const filterSubjectId = params.filterSubjectId;
+    const filtered =
+      filterSubjectId && filterSubjectId !== "all"
+        ? bookmarkList.filter((b) => b.subjectId === filterSubjectId)
+        : bookmarkList;
+
+    if (filtered.length === 0) {
+      Alert.alert("لا توجد محفوظات", "لا توجد أسئلة محفوظة لهذه المادة", [
+        { text: "حسناً", onPress: () => router.back() },
+      ]);
+      return;
+    }
+
     const allQuestions: SubjectQuestion[] = [];
-    for (const bookmark of bookmarkList) {
+    for (const bookmark of filtered) {
       const subject = loadSubjectDataById(bookmark.subjectId);
       if (!subject) continue;
       for (const chapter of subject.chapters) {
@@ -211,7 +226,17 @@ export default function QuizPlayScreen() {
       return;
     }
 
-    const final = allQuestions.map((q) => shuffleQuestion(q));
+    // Apply order
+    const ordered =
+      order === "random"
+        ? [...allQuestions].sort(() => Math.random() - 0.5)
+        : allQuestions;
+
+    // Apply percentage
+    const count = getSelectedQuestionCount(ordered.length, percentage);
+    const selected = ordered.slice(0, count);
+
+    const final = selected.map((q) => shuffleQuestion(q));
     questionsRef.current = final;
     answersRef.current = {};
     setAnswers({});
@@ -219,9 +244,9 @@ export default function QuizPlayScreen() {
     setCurrent(0);
     setRevealed(false);
     setLang(initialLang);
-    setTimeLeft(null);
+    setTimeLeft(hardMode ? final.length * 60 : null);
     setSessionChecked(true);
-  }, [initialLang]);
+  }, [initialLang, params.filterSubjectId, order, percentage, hardMode]);
 
   useEffect(() => {
     const initQuiz = async () => {
@@ -304,6 +329,7 @@ export default function QuizPlayScreen() {
     mode,
     order,
     params.source,
+    params.filterSubjectId,
     params.subjectId,
     params.chapterId,
     params.topicId,
@@ -351,6 +377,9 @@ export default function QuizPlayScreen() {
       questionIds: JSON.stringify(questionsRef.current.map((question) => question.id)),
       lang,
     });
+    if (params.filterSubjectId) {
+      searchParams.set("filterSubjectId", params.filterSubjectId);
+    }
 
     router.replace(`/quiz/result?${searchParams.toString()}` as any);
   }, [lang, mode, params.scope, params.subjectId, params.chapterId, params.topicId, percentage, router]);

@@ -21,6 +21,7 @@ export default function QuizSetupScreen() {
     topicId: string;
     percentage?: string;
     source?: string;
+    filterSubjectId?: string;
   }>();
   const isBookmarksMode = params.source === "bookmarks";
   const router = useRouter();
@@ -80,6 +81,9 @@ export default function QuizSetupScreen() {
 
     if (isBookmarksMode) {
       searchParams.set("source", "bookmarks");
+    }
+    if (params.filterSubjectId) {
+      searchParams.set("filterSubjectId", params.filterSubjectId);
     }
     searchParams.set("mode", mode);
     searchParams.set("hardMode", hardMode ? "1" : "0");

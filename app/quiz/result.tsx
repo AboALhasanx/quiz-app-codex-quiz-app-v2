@@ -16,10 +16,50 @@ import {
   getQuestionText,
   getScopedQuestions,
   loadSubjectDataById,
+  SUBJECT_MANIFEST,
+  SubjectQuestion,
 } from "../../utils/subjects";
 
 function parseLang(value?: string): Language {
   return value === "en" ? "en" : "ar";
+}
+
+function resolveQuestionsByIds(
+  questionIds: string[],
+  subjectId: string,
+  chapterId: string,
+  topicId: string
+): SubjectQuestion[] {
+  if (questionIds.length === 0) return [];
+
+  // Case 1: Regular quiz — subjectId is known, fast single-subject lookup
+  if (subjectId && subjectId !== "") {
+    const subject = loadSubjectDataById(subjectId);
+    const allQuestions = getScopedQuestions(subject, chapterId, topicId);
+    return questionIds
+      .map((id) => allQuestions.find((q) => q.id === id))
+      .filter((q): q is SubjectQuestion => Boolean(q));
+  }
+
+  // Case 2: Bookmarks quiz — subjectId is empty, search ALL subjects
+  const remaining = new Set(questionIds);
+  const resolved: SubjectQuestion[] = [];
+  for (const manifest of SUBJECT_MANIFEST) {
+    if (remaining.size === 0) break;
+    const subj = loadSubjectDataById(manifest.id);
+    if (!subj) continue;
+    for (const chapter of subj.chapters) {
+      for (const topic of chapter.topics) {
+        for (const q of topic.questions) {
+          if (remaining.has(q.id)) {
+            resolved.push(q);
+            remaining.delete(q.id);
+          }
+        }
+      }
+    }
+  }
+  return resolved;
 }
 
 export default function ResultScreen() {
@@ -34,6 +74,7 @@ export default function ResultScreen() {
     scope?: string;
     percentage?: string;
     lang?: string;
+    filterSubjectId?: string;
   }>();
   const router = useRouter();
 
@@ -44,11 +85,12 @@ export default function ResultScreen() {
   const answers = JSON.parse(params.answers ?? "{}") as AnswerMap;
   const questionIds = JSON.parse(params.questionIds ?? "[]") as string[];
 
-  const subject = loadSubjectDataById(params.subjectId ?? "");
-  const allQuestions = getScopedQuestions(subject, params.chapterId, params.topicId);
-  const questions = questionIds
-    .map((questionId) => allQuestions.find((question) => question.id === questionId))
-    .filter((question): question is NonNullable<typeof question> => Boolean(question));
+  const questions = resolveQuestionsByIds(
+    questionIds,
+    params.subjectId ?? "",
+    params.chapterId ?? "",
+    params.topicId ?? ""
+  );
 
   let correctCount = 0;
   let wrongCount = 0;
@@ -96,8 +138,9 @@ export default function ResultScreen() {
 
   useEffect(() => {
     const persistResult = async () => {
+      const effectiveSubjectId = params.filterSubjectId || params.subjectId || "";
       await saveResult({
-        subjectId: params.subjectId ?? "",
+        subjectId: effectiveSubjectId,
         chapterId: params.chapterId ?? "",
         topicId: params.topicId ?? "",
         mode: params.mode ?? "paper",

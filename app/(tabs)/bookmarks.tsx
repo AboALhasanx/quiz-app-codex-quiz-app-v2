@@ -176,9 +176,14 @@ export default function BookmarksScreen() {
       {filteredBookmarks.length > 0 && (
         <TouchableOpacity
           style={[s.startQuizBtn, { backgroundColor: theme.primary }]}
-          onPress={() =>
-            router.push("/quiz/setup?source=bookmarks" as any)
-          }
+          onPress={() => {
+            const baseUrl = "/quiz/setup?source=bookmarks";
+            const url =
+              selectedSubjectId && selectedSubjectId !== "all"
+                ? `${baseUrl}&filterSubjectId=${selectedSubjectId}`
+                : baseUrl;
+            router.push(url as any);
+          }}
         >
           <Ionicons name="library-outline" size={20} color="#fff" />
           <Text style={s.startQuizBtnText}>اختبار المحفوظات</Text>
