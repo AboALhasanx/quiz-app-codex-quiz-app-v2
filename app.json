@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "تنافسي البرمجيات",
+    "slug": "quiz-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "quizapp",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#EDDEC7",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.aboalhasannn.competitivesoftware",
+      "backgroundColor": "#EDDEC7",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#EDDEC7"
+      }
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0B1C2E",
+          "resizeMode": "contain"
+        }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-web-browser",
+      "expo-asset"
+    ],
+    "experiments": {
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f022165f-4c9e-4699-ad95-e1cf2670b7a3"
+      }
+    },
+    "owner": "aboalhasannn"
+  }
+}
