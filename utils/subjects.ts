@@ -1,4 +1,5 @@
 import manifest from "../data/subjects/index.json";
+import { loadSubjectData } from "./subjectDataManager";
 
 export type Language = "ar" | "en";
 
@@ -24,8 +25,8 @@ export type SubjectChapter = {
   id: string;
   title: string;
   topics: SubjectTopic[];
-  malzama?: string;  // ← أضف هذا
-  summary?: string;  // ← وهذا
+  malzama?: string;
+  summary?: string;
 };
 
 export type SubjectData = {
@@ -63,6 +64,16 @@ export function getSubjectManifestItem(subjectId: string): SubjectManifestItem |
 export function loadSubjectDataById(subjectId: string): SubjectData | null {
   const subject = getSubjectManifestItem(subjectId);
   return subject ? loadSubjectDataByFile(subject.file) : null;
+}
+
+export async function loadSubjectDataByIdAsync(subjectId: string): Promise<SubjectData | null> {
+  const subject = getSubjectManifestItem(subjectId);
+  if (!subject) return null;
+  try {
+    return (await loadSubjectData(subject.file)) as SubjectData;
+  } catch {
+    return null;
+  }
 }
 
 export function getSubjectMetaByFile(file: string) {

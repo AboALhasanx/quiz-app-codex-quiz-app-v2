@@ -18,6 +18,13 @@ import { exportAllData, importAllData } from "../../utils/dataTransfer";
 import { flushAllLocalToFirebase } from "../../utils/syncManager";
 import { getPdfStatuses, countUpdatesAvailable, clearManifestCache } from "../../utils/pdfManifest";
 import { downloadPdf } from "../../utils/pdfDownloader";
+import {
+  getSubjectDataStatuses,
+  downloadSubjectAsset,
+  clearSubjectDataCache,
+  countDataUpdatesAvailable,
+  DataAssetStatus,
+} from "../../utils/subjectDataManager";
 
 export default function ProfileScreen() {
   const { theme, isDark, toggle } = useTheme();
@@ -29,39 +36,70 @@ export default function ProfileScreen() {
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
-    getPdfStatuses()
-      .then((s) => setPdfUpdateCount(countUpdatesAvailable(s)))
-      .catch(() => {});
+    Promise.all([
+      getPdfStatuses(),
+      getSubjectDataStatuses().catch(() => [] as DataAssetStatus[]),
+    ]).then(([pdfStatuses, dataStatuses]) => {
+      const count =
+        countUpdatesAvailable(pdfStatuses) +
+        countDataUpdatesAvailable(dataStatuses);
+      setPdfUpdateCount(count);
+    });
   }, []);
 
   const handlePdfSync = async () => {
     try {
       setSyncState("checking");
-      const statuses = await getPdfStatuses();
-      const toDownload = statuses.filter(
+
+      // Check both PDFs and subject data
+      const [pdfStatuses, dataStatuses] = await Promise.all([
+        getPdfStatuses(),
+        getSubjectDataStatuses().catch(() => [] as any),
+      ]);
+
+      const pdfToDownload = pdfStatuses.filter(
         (s) => s.status === "not_downloaded" || s.status === "update_available"
       );
+      const dataToUpdate = dataStatuses.filter(
+        (s: DataAssetStatus) => s.status !== "up_to_date"
+      );
 
-      if (toDownload.length === 0) {
+      const totalItems = pdfToDownload.length + dataToUpdate.length;
+
+      if (totalItems === 0) {
         setSyncState("up_to_date");
         setTimeout(() => setSyncState("idle"), 3000);
         return;
       }
 
       setSyncState("downloading");
-      setSyncProgress({ current: 0, total: toDownload.length });
+      setSyncProgress({ current: 0, total: totalItems });
+      let completed = 0;
 
-      for (let i = 0; i < toDownload.length; i++) {
-        await downloadPdf(toDownload[i].entry);
-        setSyncProgress({ current: i + 1, total: toDownload.length });
+      // Download PDFs
+      for (const item of pdfToDownload) {
+        await downloadPdf(item.entry);
+        completed += 1;
+        setSyncProgress({ current: completed, total: totalItems });
+      }
+
+      // Download subject data
+      for (const item of dataToUpdate) {
+        await downloadSubjectAsset(item.asset);
+        completed += 1;
+        setSyncProgress({ current: completed, total: totalItems });
       }
 
       setSyncState("done");
-      await clearManifestCache();
-      const fresh = await getPdfStatuses();
-      const newCount = fresh.filter(
-        (s) => s.status === "not_downloaded" || s.status === "update_available"
-      ).length;
+      await Promise.all([clearManifestCache(), clearSubjectDataCache()]);
+
+      const [freshPdf, freshData] = await Promise.all([
+        getPdfStatuses(),
+        getSubjectDataStatuses().catch(() => [] as DataAssetStatus[]),
+      ]);
+      const newCount =
+        countUpdatesAvailable(freshPdf) +
+        countDataUpdatesAvailable(freshData);
       setPdfUpdateCount(newCount);
       setTimeout(() => setSyncState("idle"), 3000);
     } catch {
