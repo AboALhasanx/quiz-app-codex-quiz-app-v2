@@ -2,7 +2,7 @@
   "expo": {
     "name": "تنافسي البرمجيات",
     "slug": "quiz-app",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "quizapp",
@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.aboalhasannn.competitivesoftware",
+      "versionCode": 2,
       "backgroundColor": "#EDDEC7",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
