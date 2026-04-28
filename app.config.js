@@ -16,6 +16,7 @@ module.exports = () => ({
     "expo-image",
     "expo-web-browser",
     "expo-asset",
+    "expo-sharing",
   ],
   android: {
     ...expo.android,
