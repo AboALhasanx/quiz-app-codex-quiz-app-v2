@@ -68,7 +68,6 @@ function AppContent() {
         <Stack.Screen name="bookmarks/[questionId]" options={{ title: "تفاصيل المحفوظ" }} />
         <Stack.Screen name="quiz/setup"             options={{ title: "إعداد الكوز" }} />
         <Stack.Screen name="quiz/play"              options={{ headerShown: false }} />
-        <Stack.Screen name="quiz/flashcards"        options={{ title: "Flashcards" }} />
         <Stack.Screen name="quiz/result"            options={{ title: "النتيجة" }} />
       </Stack>
     </NavThemeProvider>

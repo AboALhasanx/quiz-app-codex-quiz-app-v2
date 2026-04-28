@@ -5,7 +5,7 @@ import { useTheme } from "../../utils/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { getScopedQuestions, loadSubjectDataById } from "../../utils/subjects";
 
-type SessionType = "quiz" | "flashcards";
+type SessionType = "quiz";
 
 function getSelectedQuestionCount(total: number, percentage: number) {
   if (total <= 0) return 0;
@@ -44,14 +44,12 @@ export default function QuizSetupScreen() {
     question: "سؤال",
     sessionType: "نوع الجلسة",
     quiz: "كوز",
-    flashcards: "فلاش كارد",
     percentage: "نسبة الأسئلة",
     order: "ترتيب الأسئلة",
     hardModeTitle: "Hard Mode",
     hardModeDesc: "دقيقة لكل سؤال - انتهاء الوقت يعني نهاية الكوز",
     hardModeTime: "الوقت الكلي",
     startQuiz: "ابدأ الكوز",
-    startFlashcards: "ابدأ المراجعة",
     random: "عشوائي",
     sequential: "تسلسلي",
   };
@@ -78,14 +76,9 @@ export default function QuizSetupScreen() {
       order,
     });
 
-    if (sessionType === "quiz") {
-      searchParams.set("mode", mode);
-      searchParams.set("hardMode", hardMode ? "1" : "0");
-      router.push(`/quiz/play?${searchParams.toString()}` as any);
-      return;
-    }
-
-    router.push(`/quiz/flashcards?${searchParams.toString()}` as any);
+    searchParams.set("mode", mode);
+    searchParams.set("hardMode", hardMode ? "1" : "0");
+    router.push(`/quiz/play?${searchParams.toString()}` as any);
   };
 
   return (
@@ -121,7 +114,6 @@ export default function QuizSetupScreen() {
       <View style={s.row}>
         {([
           { value: "quiz", label: labels.quiz },
-          { value: "flashcards", label: labels.flashcards },
         ] as const).map((item) => (
           <TouchableOpacity
             key={item.value}
@@ -289,12 +281,12 @@ export default function QuizSetupScreen() {
         activeOpacity={0.85}
       >
         <Ionicons
-          name={sessionType === "quiz" ? "rocket-outline" : "albums-outline"}
+          name="rocket-outline"
           size={22}
           color="#fff"
         />
         <Text style={s.startBtnText}>
-          {sessionType === "quiz" ? labels.startQuiz : labels.startFlashcards}
+          {labels.startQuiz}
         </Text>
       </TouchableOpacity>
     </ScrollView>
