@@ -379,6 +379,31 @@ export default function QuizPlayScreen() {
     setRevealed(false);
   };
 
+  const handlePrev = () => {
+    if (current <= 0) return;
+    const prevQuestion = questions[current - 1];
+    setCurrent((value) => value - 1);
+    if (mode === "recitation") {
+      setRevealed(answersRef.current[prevQuestion.id] !== undefined);
+    }
+  };
+
+  const handleNextOrFinish = () => {
+    if (current + 1 >= questions.length) {
+      Alert.alert(
+        "إنهاء الاختبار",
+        "هل تريد إنهاء الاختبار الآن؟",
+        [
+          { text: "إلغاء", style: "cancel" },
+          { text: "إنهاء", onPress: finishQuiz },
+        ]
+      );
+      return;
+    }
+    setCurrent((value) => value + 1);
+    setRevealed(false);
+  };
+
   const getOptionStyle = (displayIndex: number) => {
     if (!question) {
       return [s.option, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }];
@@ -606,6 +631,31 @@ export default function QuizPlayScreen() {
         )}
       </ScrollView>
 
+      <View style={[s.navRow, current === 0 && s.navRowSingle]}>
+        {current > 0 && (
+          <TouchableOpacity
+            style={[s.navBtn, s.navBtnPrev, { borderColor: theme.textSecondary + "44" }]}
+            onPress={handlePrev}
+          >
+            <Ionicons name="chevron-back-outline" size={20} color={theme.textPrimary} />
+            <Text style={[s.navBtnText, { color: theme.textPrimary }]}>السابق</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={[s.navBtn, s.navBtnNext, { backgroundColor: theme.primary }]}
+          onPress={handleNextOrFinish}
+        >
+          <Ionicons
+            name={current + 1 >= questions.length ? "checkmark-circle-outline" : "chevron-forward-outline"}
+            size={20}
+            color="#fff"
+          />
+          <Text style={s.navBtnNextText}>
+            {current + 1 >= questions.length ? "إنهاء" : "التالي"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={s.fabArea} pointerEvents="box-none">
         {fabOpen && (
           <View style={[s.fabMenu, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}>
@@ -720,5 +770,40 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     elevation: 4,
+  },
+  navRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 12,
+  },
+  navRowSingle: {
+    justifyContent: "flex-end",
+  },
+  navBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    height: 48,
+    paddingHorizontal: 20,
+    gap: 6,
+  },
+  navBtnPrev: {
+    borderWidth: 1,
+    backgroundColor: "transparent",
+  },
+  navBtnNext: {
+    minWidth: 100,
+  },
+  navBtnText: {
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  navBtnNextText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 15,
   },
 });
