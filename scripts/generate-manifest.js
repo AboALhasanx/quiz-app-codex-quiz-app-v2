@@ -33,12 +33,17 @@ const SUBJECT_NAMES = {
 // Derive chapterId from filename tokens.
 // Filenames look like: AI_Ch01.pdf, Net_Ch01_Introduction.pdf, Sum_OS_Ch03.pdf
 function extractChapterId(filename) {
-  // Remove extension and "Sum_" prefix
   const base = path.basename(filename, ".pdf").replace(/^Sum_/, "");
-  // Match Ch followed by digits; strip leading zeros
+  // Try to match Ch followed by digits (e.g., Ch01, Ch03)
   const match = base.match(/Ch(\d+)/i);
   if (match) return "ch" + parseInt(match[1], 10).toString();
-  return "unknown";
+  // Fallback: remove subject prefix (first word before underscore) and slugify the rest
+  // e.g., "Net_Error_Detection" → "error_detection"
+  //       "OOP_Abstraction" → "abstraction"
+  const parts = base.split("_");
+  // Remove the subject abbreviation prefix (first token like AI, Net, OOP, OS, SE, Algo)
+  const withoutPrefix = parts.slice(1).join("_");
+  return withoutPrefix.toLowerCase().replace(/[^a-z0-9]/g, "_") || base.toLowerCase();
 }
 
 function extractType(filename) {

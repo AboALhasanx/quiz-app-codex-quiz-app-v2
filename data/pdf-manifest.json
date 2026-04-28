@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-28T18:01:06.658Z",
+  "updatedAt": "2026-04-28T18:16:29.925Z",
   "remoteManifestUrl": "https://raw.githubusercontent.com/AboALhasanx/quiz-app-pdfs/master/manifest.json",
   "files": [
     {
@@ -160,11 +160,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "cn_data_sum_unknown",
+      "id": "cn_data_sum_error_detection",
       "subjectId": "cn_data",
-      "chapterId": "unknown",
+      "chapterId": "error_detection",
       "type": "summary",
-      "name": "ملخص شبكات الحاسوب الفصل unknown",
+      "name": "ملخص شبكات الحاسوب الفصل error_detection",
       "filename": "Sum_Net_Error_Detection.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_Net_Error_Detection.pdf",
       "size": 1187593,
@@ -173,11 +173,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "cn_data_sum_unknown",
+      "id": "cn_data_sum_introduction",
       "subjectId": "cn_data",
-      "chapterId": "unknown",
+      "chapterId": "introduction",
       "type": "summary",
-      "name": "ملخص شبكات الحاسوب الفصل unknown",
+      "name": "ملخص شبكات الحاسوب الفصل introduction",
       "filename": "Sum_Net_Introduction.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_Net_Introduction.pdf",
       "size": 624635,
@@ -186,11 +186,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "cn_data_sum_unknown",
+      "id": "cn_data_sum_logical_addressing",
       "subjectId": "cn_data",
-      "chapterId": "unknown",
+      "chapterId": "logical_addressing",
       "type": "summary",
-      "name": "ملخص شبكات الحاسوب الفصل unknown",
+      "name": "ملخص شبكات الحاسوب الفصل logical_addressing",
       "filename": "Sum_Net_Logical_Addressing.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_Net_Logical_Addressing.pdf",
       "size": 950070,
@@ -199,11 +199,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "cn_data_sum_unknown",
+      "id": "cn_data_sum_models",
       "subjectId": "cn_data",
-      "chapterId": "unknown",
+      "chapterId": "models",
       "type": "summary",
-      "name": "ملخص شبكات الحاسوب الفصل unknown",
+      "name": "ملخص شبكات الحاسوب الفصل models",
       "filename": "Sum_Net_Models.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_Net_Models.pdf",
       "size": 655729,
@@ -511,11 +511,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_abstraction",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "abstraction",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل abstraction",
       "filename": "Sum_OOP_Abstraction.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_Abstraction.pdf",
       "size": 722144,
@@ -524,11 +524,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_class_concept",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "class_concept",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل class_concept",
       "filename": "Sum_OOP_Class_Concept.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_Class_Concept.pdf",
       "size": 703090,
@@ -537,11 +537,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_grouping_objects",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "grouping_objects",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل grouping_objects",
       "filename": "Sum_OOP_Grouping_Objects.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_Grouping_Objects.pdf",
       "size": 459452,
@@ -550,11 +550,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_inheritance",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "inheritance",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل inheritance",
       "filename": "Sum_OOP_Inheritance.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_Inheritance.pdf",
       "size": 614191,
@@ -563,11 +563,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_introduction",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "introduction",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل introduction",
       "filename": "Sum_OOP_Introduction.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_Introduction.pdf",
       "size": 1609469,
@@ -576,11 +576,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_more_inheritance",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "more_inheritance",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل more_inheritance",
       "filename": "Sum_OOP_More_Inheritance.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_More_Inheritance.pdf",
       "size": 835937,
@@ -589,11 +589,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "oop_data_sum_unknown",
+      "id": "oop_data_sum_object_interaction",
       "subjectId": "oop_data",
-      "chapterId": "unknown",
+      "chapterId": "object_interaction",
       "type": "summary",
-      "name": "ملخص البرمجة الكائنية الفصل unknown",
+      "name": "ملخص البرمجة الكائنية الفصل object_interaction",
       "filename": "Sum_OOP_Object_Interaction.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OOP_Object_Interaction.pdf",
       "size": 550323,
@@ -758,11 +758,11 @@
       "updatedAt": "2026-03-30T11:37:27.000Z"
     },
     {
-      "id": "os_data_sum_unknown",
+      "id": "os_data_sum_introduction",
       "subjectId": "os_data",
-      "chapterId": "unknown",
+      "chapterId": "introduction",
       "type": "summary",
-      "name": "ملخص أنظمة التشغيل الفصل unknown",
+      "name": "ملخص أنظمة التشغيل الفصل introduction",
       "filename": "Sum_OS_Introduction.pdf",
       "url": "https://github.com/AboALhasanx/quiz-app-pdfs/releases/download/v1/Sum_OS_Introduction.pdf",
       "size": 2735673,
