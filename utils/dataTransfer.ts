@@ -27,11 +27,17 @@ export type ExportPayload = {
 };
 
 export async function exportAllData(): Promise<{ success: true }> {
-  const [results, bookmarks, syncQueue, theme] = await Promise.all([
+  let theme: string | null = null;
+  try {
+    theme = await AsyncStorage.getItem(THEME_KEY);
+  } catch (e) {
+    console.warn("Storage error:", e);
+  }
+
+  const [results, bookmarks, syncQueue] = await Promise.all([
     getResults(),
     getBookmarks(),
     getSyncQueue(),
-    AsyncStorage.getItem(THEME_KEY),
   ]);
 
   const payload: ExportPayload = {
@@ -95,7 +101,11 @@ export async function importAllData(
   const mergedResults = Array.from(resultsMap.values()).sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
-  await AsyncStorage.setItem(KEYS.results, JSON.stringify(mergedResults));
+  try {
+    await AsyncStorage.setItem(KEYS.results, JSON.stringify(mergedResults));
+  } catch (e) {
+    console.warn("Storage error:", e);
+  }
 
   // Merge bookmarks: combine, deduplicate by questionId
   const existingBookmarks = await getBookmarks();
@@ -103,11 +113,19 @@ export async function importAllData(
   for (const b of existingBookmarks) bookmarksMap.set(b.questionId, b);
   for (const b of importedBookmarks) bookmarksMap.set(b.questionId, b);
   const mergedBookmarks = Array.from(bookmarksMap.values());
-  await AsyncStorage.setItem(KEYS.bookmarks, JSON.stringify(mergedBookmarks));
+  try {
+    await AsyncStorage.setItem(KEYS.bookmarks, JSON.stringify(mergedBookmarks));
+  } catch (e) {
+    console.warn("Storage error:", e);
+  }
 
   // Restore theme if present
   if (payload.theme === "dark" || payload.theme === "light") {
-    await AsyncStorage.setItem(THEME_KEY, payload.theme);
+    try {
+      await AsyncStorage.setItem(THEME_KEY, payload.theme);
+    } catch (e) {
+      console.warn("Storage error:", e);
+    }
   }
 
   return {

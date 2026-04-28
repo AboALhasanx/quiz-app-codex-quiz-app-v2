@@ -13,7 +13,9 @@ function AppContent() {
   const { isDark, theme } = useTheme();
   const [checking, setChecking] = useState(() => !auth.currentUser);
 
-  SystemUI.setBackgroundColorAsync(theme.background);
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(theme.background);
+  }, [theme.background]);
 
   const NavTheme = {
     ...(isDark ? DarkTheme : DefaultTheme),

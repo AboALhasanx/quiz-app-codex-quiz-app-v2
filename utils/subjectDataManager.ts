@@ -145,5 +145,9 @@ export async function loadSubjectData(filename: string): Promise<any> {
 
 // ── Clear manifest cache (call after successful sync) ────────────────────────
 export async function clearSubjectDataCache(): Promise<void> {
-  await AsyncStorage.removeItem(CACHE_KEY);
+  try {
+    await AsyncStorage.removeItem(CACHE_KEY);
+  } catch (e) {
+    console.warn("Storage error:", e);
+  }
 }

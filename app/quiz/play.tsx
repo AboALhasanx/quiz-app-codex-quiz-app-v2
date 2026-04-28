@@ -229,7 +229,7 @@ export default function QuizPlayScreen() {
     // Apply order
     const ordered =
       order === "random"
-        ? [...allQuestions].sort(() => Math.random() - 0.5)
+        ? shuffle([...allQuestions])
         : allQuestions;
 
     // Apply percentage
@@ -384,6 +384,11 @@ export default function QuizPlayScreen() {
     router.replace(`/quiz/result?${searchParams.toString()}` as any);
   }, [lang, mode, params.scope, params.subjectId, params.chapterId, params.topicId, percentage, router]);
 
+  const finishQuizRef = useRef(finishQuiz);
+  useEffect(() => {
+    finishQuizRef.current = finishQuiz;
+  }, [finishQuiz]);
+
   const shouldRunTimer = hardMode && timeLeft !== null && timeLeft > 0;
 
   useEffect(() => {
@@ -393,7 +398,7 @@ export default function QuizPlayScreen() {
       setTimeLeft((value) => {
         if (value !== null && value <= 1) {
           clearInterval(timerRef.current ?? undefined);
-          finishQuiz();
+          finishQuizRef.current();
           return 0;
         }
 

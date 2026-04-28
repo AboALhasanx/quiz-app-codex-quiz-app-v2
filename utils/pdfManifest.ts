@@ -148,5 +148,9 @@ export function countUpdatesAvailable(statuses: PdfStatus[]): number {
 
 // ── Force clear cache (call this after a successful sync) ────────────────────
 export async function clearManifestCache(): Promise<void> {
-  await AsyncStorage.removeItem(CACHE_KEY);
+  try {
+    await AsyncStorage.removeItem(CACHE_KEY);
+  } catch (e) {
+    console.warn("Storage error:", e);
+  }
 }

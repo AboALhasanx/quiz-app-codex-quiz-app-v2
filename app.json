@@ -15,10 +15,14 @@
       "package": "com.aboalhasannn.competitivesoftware",
       "versionCode": 2,
       "backgroundColor": "#EDDEC7",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#EDDEC7"
       }
+    },
+    "updates": {
+      "enabled": false
     },
     "web": {
       "output": "single",
