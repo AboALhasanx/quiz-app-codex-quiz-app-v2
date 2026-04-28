@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Switch,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,12 +15,23 @@ import * as DocumentPicker from "expo-document-picker";
 import { useTheme } from "../utils/ThemeContext";
 import { exportAllData, importAllData } from "../utils/dataTransfer";
 import { flushAllLocalToFirebase } from "../utils/syncManager";
+import { loadMuteState, isMuted, toggleMute } from "../utils/soundManager";
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  useEffect(() => {
+    loadMuteState().then(() => setSoundEnabled(!isMuted()));
+  }, []);
+
+  const handleSoundToggle = (value: boolean) => {
+    toggleMute();
+    setSoundEnabled(value);
+  };
 
   const handleExport = async () => {
     setExporting(true);
@@ -83,6 +95,19 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={22} color={theme.textPrimary} />
         </TouchableOpacity>
         <Text style={[s.title, { color: theme.textPrimary }]}>الإعدادات</Text>
+      </View>
+
+      <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>صوت</Text>
+
+      <View style={[s.card, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}>
+        <Ionicons name="volume-high-outline" size={24} color={theme.primary} />
+        <Text style={[s.cardLabel, { color: theme.textPrimary, flex: 1 }]}>الأصوات</Text>
+        <Switch
+          value={soundEnabled}
+          onValueChange={handleSoundToggle}
+          trackColor={{ false: theme.secondary + "66", true: theme.primary }}
+          thumbColor={theme.textPrimary}
+        />
       </View>
 
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>
@@ -183,6 +208,7 @@ const s = StyleSheet.create({
     gap: 14,
   },
   cardText: { flex: 1 },
+  cardLabel: { fontSize: 15, fontWeight: "bold" },
   cardTitle: { fontSize: 15, fontWeight: "bold", marginBottom: 4 },
   cardSubtitle: { fontSize: 12, lineHeight: 18 },
 });

@@ -1,4 +1,3 @@
-import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MUTE_KEY = "sound_muted";
@@ -35,14 +34,20 @@ export function toggleMute(): boolean {
 }
 
 // ── Sound cache ───────────────────────────────────────────────────────────────
-const soundCache: Record<string, Audio.Sound> = {};
+const soundCache: Record<string, any> = {};
 
-async function getSound(key: string, asset: number): Promise<Audio.Sound> {
-  if (!soundCache[key]) {
-    const { sound } = await Audio.Sound.createAsync(asset);
-    soundCache[key] = sound;
+async function getSound(key: string, asset: number): Promise<any | null> {
+  try {
+    if (!soundCache[key]) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { Audio } = require("expo-av") as typeof import("expo-av");
+      const { sound } = await Audio.Sound.createAsync(asset);
+      soundCache[key] = sound;
+    }
+    return soundCache[key];
+  } catch {
+    return null;
   }
-  return soundCache[key];
 }
 
 // ── Play helpers ──────────────────────────────────────────────────────────────
@@ -50,6 +55,7 @@ async function play(key: string, asset: number): Promise<void> {
   if (_muted) return;
   try {
     const sound = await getSound(key, asset);
+    if (!sound) return;
     await sound.setPositionAsync(0);
     await sound.playAsync();
   } catch {
@@ -73,7 +79,9 @@ export async function playCompleted(): Promise<void> {
 export async function unloadSounds(): Promise<void> {
   for (const key of Object.keys(soundCache)) {
     try {
-      await soundCache[key].unloadAsync();
+      if (soundCache[key]) {
+        await soundCache[key].unloadAsync();
+      }
       delete soundCache[key];
     } catch {
       // ignore
