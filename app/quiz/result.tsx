@@ -10,6 +10,7 @@ import {
   markTopicCompletion,
   saveResult,
 } from "../../utils/storage";
+import { playCompleted, loadMuteState } from "../../utils/soundManager";
 import {
   getQuestionExplanation,
   getQuestionOptions,
@@ -175,6 +176,12 @@ export default function ResultScreen() {
 
     void persistResult();
   }, [correctCount, params.subjectId, params.chapterId, params.topicId, params.mode, percentage, scope, selectedPercentage, skippedCount, total, wrongCount]);
+
+  useEffect(() => {
+    if (percentage === 100) {
+      loadMuteState().then(() => playCompleted());
+    }
+  }, [percentage]);
 
   const toggleExplanation = (questionId: string) => {
     setExpandedExplanations((previous) => ({

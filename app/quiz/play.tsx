@@ -11,9 +11,8 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Ionicons } from "@expo/vector-icons";
-// TODO: AUDIO
-// import { Audio } from "expo-av";
 import { useTheme } from "../../utils/ThemeContext";
+import { playCorrect, playWrong, loadMuteState, isMuted, toggleMute } from "../../utils/soundManager";
 import {
   AnswerMap,
   Language,
@@ -122,39 +121,16 @@ export default function QuizPlayScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const questionsRef = useRef<ShuffledQuestion[]>([]);
 
-  // TODO: AUDIO
-  // const correctSoundRef = useRef<Audio.Sound | null>(null);
-  // const wrongSoundRef = useRef<Audio.Sound | null>(null);
+  const [muted, setMutedState] = useState(false);
 
-  // TODO: AUDIO
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   
-  //   const loadSounds = async () => {
-  //     try {
-  //       const { sound: cSound } = await Audio.Sound.createAsync(require("../../assets/sounds/correct.mp3"));
-  //       const { sound: wSound } = await Audio.Sound.createAsync(require("../../assets/sounds/wrong.mp3"));
-  //       
-  //       if (isMounted) {
-  //         correctSoundRef.current = cSound;
-  //         wrongSoundRef.current = wSound;
-  //       } else {
-  //         cSound.unloadAsync();
-  //         wSound.unloadAsync();
-  //       }
-  //     } catch (error) {
-  //       console.log("Error loading sounds:", error);
-  //     }
-  //   };
-  // 
-  //   loadSounds();
-  // 
-  //   return () => {
-  //     isMounted = false;
-  //     correctSoundRef.current?.unloadAsync();
-  //     wrongSoundRef.current?.unloadAsync();
-  //   };
-  // }, []);
+  useEffect(() => {
+    loadMuteState().then(() => setMutedState(isMuted()));
+  }, []);
+
+  const handleToggleMute = () => {
+    const next = toggleMute();
+    setMutedState(next);
+  };
 
   const loadQuestionBank = useCallback((): SubjectQuestion[] => {
     const subject = loadSubjectDataById(params.subjectId ?? "");
@@ -429,14 +405,6 @@ export default function QuizPlayScreen() {
     setBookmarked(true);
   };
 
-  // TODO: AUDIO
-  // const playAnswerSound = async (isCorrect: boolean) => {
-  //   const sound = isCorrect ? correctSoundRef.current : wrongSoundRef.current;
-  //   if (sound) {
-  //     await sound.replayAsync();
-  //   }
-  // };
-
   const handleAnswer = (displayIndex: number) => {
     if (!question) return;
     if (mode === "recitation" && revealed) return;
@@ -452,8 +420,11 @@ export default function QuizPlayScreen() {
 
     if (mode === "recitation") {
       setRevealed(true);
-      // TODO: AUDIO
-      // playAnswerSound(originalIndex === question.answer);
+      if (originalIndex === question.answer) {
+        playCorrect();
+      } else {
+        playWrong();
+      }
     }
   };
 
@@ -618,6 +589,14 @@ export default function QuizPlayScreen() {
         <Text style={{ color: theme.textPrimary, fontWeight: "bold", fontSize: 15 }}>
           {current + 1} / {questions.length}
         </Text>
+
+        <TouchableOpacity onPress={handleToggleMute} style={s.muteBtn}>
+          <Ionicons
+            name={muted ? "volume-mute-outline" : "volume-high-outline"}
+            size={22}
+            color={theme.textSecondary}
+          />
+        </TouchableOpacity>
 
         {hardMode && timeLeft !== null ? (
           <Text
@@ -830,6 +809,9 @@ const s = StyleSheet.create({
     borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+  },
+  muteBtn: {
+    padding: 8,
   },
   progressBg: { height: 4, marginHorizontal: 16, borderRadius: 2 },
   progressFill: { height: 4, borderRadius: 2 },
