@@ -736,7 +736,7 @@ export default function QuizPlayScreen() {
           </View>
         )}
 
-        {mode === "paper" && chosenAnswerIndex !== undefined && (
+        {false && mode === "paper" && chosenAnswerIndex !== undefined && (
           <TouchableOpacity style={[s.nextBtn, { backgroundColor: theme.primary }]} onPress={nextQuestion}>
             <Text style={s.nextBtnText}>
               {current + 1 >= questions.length
@@ -749,30 +749,32 @@ export default function QuizPlayScreen() {
         )}
       </ScrollView>
 
-      <View style={[s.navRow, current === 0 && s.navRowSingle]}>
-        {current > 0 && (
+      {mode === "paper" && (
+        <View style={[s.navRow, current === 0 && s.navRowSingle]}>
+          {current > 0 && (
+            <TouchableOpacity
+              style={[s.navBtn, s.navBtnPrev, { borderColor: theme.textSecondary + "44" }]}
+              onPress={handlePrev}
+            >
+              <Ionicons name="chevron-back-outline" size={20} color={theme.textPrimary} />
+              <Text style={[s.navBtnText, { color: theme.textPrimary }]}>السابق</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
-            style={[s.navBtn, s.navBtnPrev, { borderColor: theme.textSecondary + "44" }]}
-            onPress={handlePrev}
+            style={[s.navBtn, s.navBtnNext, { backgroundColor: theme.primary }]}
+            onPress={handleNextOrFinish}
           >
-            <Ionicons name="chevron-back-outline" size={20} color={theme.textPrimary} />
-            <Text style={[s.navBtnText, { color: theme.textPrimary }]}>السابق</Text>
+            <Ionicons
+              name={current + 1 >= questions.length ? "checkmark-circle-outline" : "chevron-forward-outline"}
+              size={20}
+              color="#fff"
+            />
+            <Text style={s.navBtnNextText}>
+              {current + 1 >= questions.length ? "إنهاء" : "التالي"}
+            </Text>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={[s.navBtn, s.navBtnNext, { backgroundColor: theme.primary }]}
-          onPress={handleNextOrFinish}
-        >
-          <Ionicons
-            name={current + 1 >= questions.length ? "checkmark-circle-outline" : "chevron-forward-outline"}
-            size={20}
-            color="#fff"
-          />
-          <Text style={s.navBtnNextText}>
-            {current + 1 >= questions.length ? "إنهاء" : "التالي"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      )}
 
       <View style={s.fabArea} pointerEvents="box-none">
         {fabOpen && (
