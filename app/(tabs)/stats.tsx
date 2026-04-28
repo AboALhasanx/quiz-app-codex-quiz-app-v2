@@ -167,9 +167,6 @@ export default function StatsScreen() {
           <Text style={[s.title, { color: theme.textPrimary }]}>الإحصائيات</Text>
         </View>
 
-        <TouchableOpacity onPress={() => router.push("/settings")} style={s.settingsBtn}>
-          <Ionicons name="settings-outline" size={22} color={theme.textSecondary} />
-        </TouchableOpacity>
 
 
       </View>
@@ -374,11 +371,4 @@ const s = StyleSheet.create({
   progressBg: { height: 4, borderRadius: 2 },
   progressFill: { height: 4, borderRadius: 2 },
   emptyBox: { alignItems: "center", marginTop: 60, gap: 10 },
-  settingsBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
-  },
 });

@@ -58,6 +58,21 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "الإعدادات",
+          tabBarLabel: "الإعدادات",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? "person-circle" : "person-circle-outline"}
+              color={color}
+              size={size}
+            />
+          ),
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }

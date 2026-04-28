@@ -104,11 +104,23 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 2026-04-28 | Phase 3 item 3: Bookmarks Quiz feature |
 | 2026-04-28 | Phase 3 item 4: Export/Import data feature |
 | 2026-04-28 | Phase 3 item 5: Offline-first Sync — all Phase 3 features complete |
+| 2026-04-28 | Phase 4: Settings tab created, logout moved, PDF placeholder added |
+
+---
+
+## Phase 4 — UI Polish & Pre-build
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 1 | Settings tab (profile.tsx) | ✅ Done | Theme, sync, export/import, logout, PDF placeholder |
+| 2 | Remove logout from home tab | ✅ Done | Moved to settings tab |
+| 3 | PDF download button placeholder | ✅ Done | Shows "قريباً" alert |
+| 4 | Re-enable sound (TODO: AUDIO) | 🔲 TODO | Before APK build |
+| 5 | EAS APK build | 🔲 TODO | eas build -p android --profile preview |
 
 ---
 
 ## How to Resume
 1. Read this file first
-2. All Phase 3 features complete ✅
-3. Next: APK build — re-enable sound (search TODO: AUDIO), then run eas build
-4. Use `use build` in opencode for all code changes
+2. Next tasks: Phase 4 items 4 & 5 (re-enable sound → APK build)
+3. Use `use build` in opencode for all code changes
