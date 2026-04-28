@@ -16,7 +16,7 @@ import { useTheme } from "../../utils/ThemeContext";
 import { auth, logoutUser } from "../../utils/firebase";
 import { exportAllData, importAllData } from "../../utils/dataTransfer";
 import { flushAllLocalToFirebase } from "../../utils/syncManager";
-import { getPdfStatuses, countUpdatesAvailable } from "../../utils/pdfManifest";
+import { getPdfStatuses, countUpdatesAvailable, clearManifestCache } from "../../utils/pdfManifest";
 import { downloadPdf } from "../../utils/pdfDownloader";
 
 export default function ProfileScreen() {
@@ -52,11 +52,12 @@ export default function ProfileScreen() {
       setSyncProgress({ current: 0, total: toDownload.length });
 
       for (let i = 0; i < toDownload.length; i++) {
-        await downloadPdf(toDownload[i]);
+        await downloadPdf(toDownload[i].entry);
         setSyncProgress({ current: i + 1, total: toDownload.length });
       }
 
       setSyncState("done");
+      await clearManifestCache();
       const fresh = await getPdfStatuses();
       const newCount = fresh.filter(
         (s) => s.status === "not_downloaded" || s.status === "update_available"

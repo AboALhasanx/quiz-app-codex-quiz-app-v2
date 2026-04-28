@@ -7,8 +7,7 @@ import { buildTopicCompletionKey, getTopicCompletions } from "../../utils/storag
 import { loadSubjectDataById } from "../../utils/subjects";
 import * as FileSystem from "expo-file-system/legacy";
 import { openPdf, downloadPdf } from "../../utils/pdfDownloader";
-import { PdfManifestEntry } from "../../utils/pdfManifest";
-import pdfManifest from "../../data/pdf-manifest.json";
+import { fetchPdfManifest, PdfManifestEntry } from "../../utils/pdfManifest";
 
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -41,9 +40,8 @@ export default function ChapterScreen() {
     const loadingSetter = type === "malzama" ? setMalzamaLoading : setSummaryLoading;
     loadingSetter(true);
     try {
-      const entry = (pdfManifest as { files: PdfManifestEntry[] }).files.find(
-        (f) => f.filename === filename
-      );
+      const entries = await fetchPdfManifest();
+      const entry = entries.find((f) => f.filename === filename);
       if (!entry) {
         Alert.alert("خطأ", "الملف غير موجود في قائمة الملفات");
         return;
