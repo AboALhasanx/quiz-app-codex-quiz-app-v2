@@ -17,6 +17,7 @@ import { auth, logoutUser } from "../../utils/firebase";
 import { exportAllData, importAllData } from "../../utils/dataTransfer";
 import { flushAllLocalToFirebase } from "../../utils/syncManager";
 import { getPdfStatuses, countUpdatesAvailable } from "../../utils/pdfManifest";
+import { downloadPdf } from "../../utils/pdfDownloader";
 
 export default function ProfileScreen() {
   const { theme, isDark, toggle } = useTheme();
@@ -24,12 +25,48 @@ export default function ProfileScreen() {
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [pdfUpdateCount, setPdfUpdateCount] = useState(0);
+  const [syncState, setSyncState] = useState<"idle"|"checking"|"downloading"|"done"|"up_to_date"|"error">("idle");
+  const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
     getPdfStatuses()
       .then((s) => setPdfUpdateCount(countUpdatesAvailable(s)))
       .catch(() => {});
   }, []);
+
+  const handlePdfSync = async () => {
+    try {
+      setSyncState("checking");
+      const statuses = await getPdfStatuses();
+      const toDownload = statuses.filter(
+        (s) => s.status === "not_downloaded" || s.status === "update_available"
+      );
+
+      if (toDownload.length === 0) {
+        setSyncState("up_to_date");
+        setTimeout(() => setSyncState("idle"), 3000);
+        return;
+      }
+
+      setSyncState("downloading");
+      setSyncProgress({ current: 0, total: toDownload.length });
+
+      for (let i = 0; i < toDownload.length; i++) {
+        await downloadPdf(toDownload[i]);
+        setSyncProgress({ current: i + 1, total: toDownload.length });
+      }
+
+      setSyncState("done");
+      const fresh = await getPdfStatuses();
+      const newCount = fresh.filter(
+        (s) => s.status === "not_downloaded" || s.status === "update_available"
+      ).length;
+      setPdfUpdateCount(newCount);
+      setTimeout(() => setSyncState("idle"), 3000);
+    } catch {
+      setSyncState("error");
+    }
+  };
 
   const handleSync = async () => {
     setSyncing(true);
@@ -203,27 +240,66 @@ export default function ProfileScreen() {
         style={[
           s.card,
           { backgroundColor: theme.card, borderColor: theme.secondary + "33" },
+          (syncState === "checking" || syncState === "downloading" || syncState === "done" || syncState === "up_to_date") && { opacity: 0.7 },
         ]}
-        onPress={() => router.push("/pdfs" as any)}
+        onPress={syncState === "error" || syncState === "idle" ? handlePdfSync : undefined}
+        disabled={syncState !== "idle" && syncState !== "error"}
         activeOpacity={0.8}
       >
-        <Ionicons name="cloud-download-outline" size={24} color={theme.primary} />
+        <Ionicons
+          name={
+            syncState === "done" || syncState === "up_to_date"
+              ? "checkmark-circle-outline"
+              : syncState === "error"
+                ? "alert-circle-outline"
+                : "cloud-download-outline"
+          }
+          size={24}
+          color={
+            syncState === "done" || syncState === "up_to_date"
+              ? theme.correct
+              : syncState === "error"
+                ? theme.wrong
+                : theme.primary
+          }
+        />
         <View style={s.cardText}>
-          <Text style={[s.cardTitle, { color: theme.textPrimary }]}>تحديث الملازم والملخصات</Text>
-          <Text style={[s.cardSubtitle, { color: theme.textSecondary }]}>
-            تحميل وعرض ملفات PDF للمواد
+          <Text style={[s.cardTitle, { color: theme.textPrimary }]}>
+            {syncState === "checking" && "جاري الفحص..."}
+            {syncState === "downloading" && `جاري التحميل ${syncProgress.current}/${syncProgress.total}`}
+            {syncState === "done" && "اكتمل التحديث ✓"}
+            {syncState === "up_to_date" && "الملفات محدّثة بالفعل"}
+            {syncState === "error" && "فشل التحميل — اضغط للمحاولة مجدداً"}
+            {syncState === "idle" && "تحديث الملازم والملخصات"}
           </Text>
+          {syncState === "downloading" && (
+            <View style={{ height: 3, backgroundColor: theme.secondary + "44", borderRadius: 2, marginTop: 4, overflow: "hidden" }}>
+              <View style={{
+                height: 3,
+                borderRadius: 2,
+                backgroundColor: theme.primary,
+                width: `${(syncProgress.current / syncProgress.total) * 100}%`,
+              }} />
+            </View>
+          )}
         </View>
-        <View
-          style={[
-            s.badge,
-            { backgroundColor: pdfUpdateCount > 0 ? theme.wrong : theme.correct },
-          ]}
-        >
-          <Text style={s.badgeText}>
-            {pdfUpdateCount > 0 ? String(pdfUpdateCount) : "مُحدث"}
-          </Text>
-        </View>
+        {syncState === "checking" || syncState === "downloading" ? (
+          <ActivityIndicator size="small" color={theme.primary} />
+        ) : syncState === "done" || syncState === "up_to_date" ? (
+          <View style={[s.badge, { backgroundColor: theme.correct }]}>
+            <Text style={s.badgeText}>مُحدّث</Text>
+          </View>
+        ) : syncState === "error" ? (
+          <View style={[s.badge, { backgroundColor: theme.wrong }]}>
+            <Text style={s.badgeText}>خطأ</Text>
+          </View>
+        ) : (
+          <View style={[s.badge, { backgroundColor: pdfUpdateCount > 0 ? theme.wrong : theme.correct }]}>
+            <Text style={s.badgeText}>
+              {pdfUpdateCount > 0 ? String(pdfUpdateCount) : "مُحدّث"}
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
 
       {/* — Section: الحساب — */}

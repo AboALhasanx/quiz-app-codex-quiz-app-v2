@@ -1,111 +1,14 @@
 import { useState, useCallback } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Platform, Alert, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../utils/ThemeContext";
 import { buildTopicCompletionKey, getTopicCompletions } from "../../utils/storage";
 import { loadSubjectDataById } from "../../utils/subjects";
 import * as FileSystem from "expo-file-system/legacy";
-import * as IntentLauncher from "expo-intent-launcher";
-import { Asset } from "expo-asset";
-
-// ── 1) MAP ثابت لكل ملفات PDF ──────────────────────────────────────────────
-const PDF_MAP: Record<string, any> = {
-  "assets/pdfs/ai/AI_Ch01.pdf":            require("../../assets/pdfs/ai/AI_Ch01.pdf"),
-  "assets/pdfs/ai/AI_Ch02.pdf":            require("../../assets/pdfs/ai/AI_Ch02.pdf"),
-  "assets/pdfs/ai/AI_Ch03.pdf":            require("../../assets/pdfs/ai/AI_Ch03.pdf"),
-  "assets/pdfs/ai/AI_Ch04.pdf":            require("../../assets/pdfs/ai/AI_Ch04.pdf"),
-  "assets/pdfs/ai/Sum_AI_Ch01.pdf":        require("../../assets/pdfs/ai/Sum_AI_Ch01.pdf"),
-  "assets/pdfs/ai/Sum_AI_Ch02.pdf":        require("../../assets/pdfs/ai/Sum_AI_Ch02.pdf"),
-  "assets/pdfs/ai/Sum_AI_Ch03.pdf":        require("../../assets/pdfs/ai/Sum_AI_Ch03.pdf"),
-  "assets/pdfs/ai/Sum_AI_Ch04.pdf":        require("../../assets/pdfs/ai/Sum_AI_Ch04.pdf"),
-
-  "assets/pdfs/algo/Algo_Ch03.pdf":        require("../../assets/pdfs/algo/Algo_Ch03.pdf"),
-  "assets/pdfs/algo/Algo_Ch04.pdf":        require("../../assets/pdfs/algo/Algo_Ch04.pdf"),
-  "assets/pdfs/algo/Algo_Ch05.pdf":        require("../../assets/pdfs/algo/Algo_Ch05.pdf"),
-  "assets/pdfs/algo/Algo_Ch06.pdf":        require("../../assets/pdfs/algo/Algo_Ch06.pdf"),
-  "assets/pdfs/algo/Algo_Ch07.pdf":        require("../../assets/pdfs/algo/Algo_Ch07.pdf"),
-  "assets/pdfs/algo/Algo_Ch10.pdf":        require("../../assets/pdfs/algo/Algo_Ch10.pdf"),
-  "assets/pdfs/algo/Algo_Ch11.pdf":        require("../../assets/pdfs/algo/Algo_Ch11.pdf"),
-  "assets/pdfs/algo/Algo_Ch13.pdf":        require("../../assets/pdfs/algo/Algo_Ch13.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch03.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch03.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch04.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch04.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch05.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch05.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch06.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch06.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch07.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch07.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch10.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch10.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch11.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch11.pdf"),
-  "assets/pdfs/algo/Sum_Algo_Ch13.pdf":    require("../../assets/pdfs/algo/Sum_Algo_Ch13.pdf"),
-
-  "assets/pdfs/net/Net_Ch01_Introduction.pdf":       require("../../assets/pdfs/net/Net_Ch01_Introduction.pdf"),
-  "assets/pdfs/net/Net_Ch02_Models.pdf":             require("../../assets/pdfs/net/Net_Ch02_Models.pdf"),
-  "assets/pdfs/net/Net_Ch03_Logical_Addressing.pdf": require("../../assets/pdfs/net/Net_Ch03_Logical_Addressing.pdf"),
-  "assets/pdfs/net/Net_Ch04_Error_Detection.pdf":    require("../../assets/pdfs/net/Net_Ch04_Error_Detection.pdf"),
-  "assets/pdfs/net/Sum_Net_Introduction.pdf":        require("../../assets/pdfs/net/Sum_Net_Introduction.pdf"),
-  "assets/pdfs/net/Sum_Net_Models.pdf":              require("../../assets/pdfs/net/Sum_Net_Models.pdf"),
-  "assets/pdfs/net/Sum_Net_Logical_Addressing.pdf":  require("../../assets/pdfs/net/Sum_Net_Logical_Addressing.pdf"),
-  "assets/pdfs/net/Sum_Net_Error_Detection.pdf":     require("../../assets/pdfs/net/Sum_Net_Error_Detection.pdf"),
-
-  "assets/pdfs/oop/OOP_Ch01_Review.pdf":           require("../../assets/pdfs/oop/OOP_Ch01_Review.pdf"),
-  "assets/pdfs/oop/OOP_Ch02_Class_Definition.pdf": require("../../assets/pdfs/oop/OOP_Ch02_Class_Definition.pdf"),
-  "assets/pdfs/oop/OOP_Ch03_Object_Interaction.pdf":require("../../assets/pdfs/oop/OOP_Ch03_Object_Interaction.pdf"),
-  "assets/pdfs/oop/OOP_Ch04_Grouping_Objects.pdf":  require("../../assets/pdfs/oop/OOP_Ch04_Grouping_Objects.pdf"),
-  "assets/pdfs/oop/OOP_Ch05_Inheritance.pdf":       require("../../assets/pdfs/oop/OOP_Ch05_Inheritance.pdf"),
-  "assets/pdfs/oop/OOP_Ch06_More_Inheritance.pdf":  require("../../assets/pdfs/oop/OOP_Ch06_More_Inheritance.pdf"),
-  "assets/pdfs/oop/OOP_Ch07_Abstraction.pdf":       require("../../assets/pdfs/oop/OOP_Ch07_Abstraction.pdf"),
-  "assets/pdfs/oop/Sum_OOP_Introduction.pdf":       require("../../assets/pdfs/oop/Sum_OOP_Introduction.pdf"),
-  "assets/pdfs/oop/Sum_OOP_Class_Concept.pdf":      require("../../assets/pdfs/oop/Sum_OOP_Class_Concept.pdf"),
-  "assets/pdfs/oop/Sum_OOP_Object_Interaction.pdf": require("../../assets/pdfs/oop/Sum_OOP_Object_Interaction.pdf"),
-  "assets/pdfs/oop/Sum_OOP_Grouping_Objects.pdf":   require("../../assets/pdfs/oop/Sum_OOP_Grouping_Objects.pdf"),
-  "assets/pdfs/oop/Sum_OOP_Inheritance.pdf":        require("../../assets/pdfs/oop/Sum_OOP_Inheritance.pdf"),
-  "assets/pdfs/oop/Sum_OOP_More_Inheritance.pdf":   require("../../assets/pdfs/oop/Sum_OOP_More_Inheritance.pdf"),
-  "assets/pdfs/oop/Sum_OOP_Abstraction.pdf":        require("../../assets/pdfs/oop/Sum_OOP_Abstraction.pdf"),
-
-  "assets/pdfs/os/OS_Ch03.pdf":              require("../../assets/pdfs/os/OS_Ch03.pdf"),
-  "assets/pdfs/os/OS_Ch04.pdf":              require("../../assets/pdfs/os/OS_Ch04.pdf"),
-  "assets/pdfs/os/OS_Ch05.pdf":              require("../../assets/pdfs/os/OS_Ch05.pdf"),
-  "assets/pdfs/os/OS_Ch06.pdf":              require("../../assets/pdfs/os/OS_Ch06.pdf"),
-  "assets/pdfs/os/OS_Ch07.pdf":              require("../../assets/pdfs/os/OS_Ch07.pdf"),
-  "assets/pdfs/os/OS_Ch08.pdf":              require("../../assets/pdfs/os/OS_Ch08.pdf"),
-  "assets/pdfs/os/Sum_OS_Introduction.pdf":  require("../../assets/pdfs/os/Sum_OS_Introduction.pdf"),
-  "assets/pdfs/os/Sum_OS_Ch03.pdf":          require("../../assets/pdfs/os/Sum_OS_Ch03.pdf"),
-  "assets/pdfs/os/Sum_OS_Ch04.pdf":          require("../../assets/pdfs/os/Sum_OS_Ch04.pdf"),
-  "assets/pdfs/os/Sum_OS_Ch05.pdf":          require("../../assets/pdfs/os/Sum_OS_Ch05.pdf"),
-  "assets/pdfs/os/Sum_OS_Ch06.pdf":          require("../../assets/pdfs/os/Sum_OS_Ch06.pdf"),
-  "assets/pdfs/os/Sum_OS_Ch07.pdf":          require("../../assets/pdfs/os/Sum_OS_Ch07.pdf"),
-  "assets/pdfs/os/Sum_OS_Ch08.pdf":          require("../../assets/pdfs/os/Sum_OS_Ch08.pdf"),
-
-  "assets/pdfs/se/SE_Ch01.pdf":         require("../../assets/pdfs/se/SE_Ch01.pdf"),
-  "assets/pdfs/se/SE_Ch02.pdf":         require("../../assets/pdfs/se/SE_Ch02.pdf"),
-  "assets/pdfs/se/SE_Ch03.pdf":         require("../../assets/pdfs/se/SE_Ch03.pdf"),
-  "assets/pdfs/se/SE_Ch07.pdf":         require("../../assets/pdfs/se/SE_Ch07.pdf"),
-  "assets/pdfs/se/SE_Ch08.pdf":         require("../../assets/pdfs/se/SE_Ch08.pdf"),
-  "assets/pdfs/se/SE_Ch09.pdf":         require("../../assets/pdfs/se/SE_Ch09.pdf"),
-  "assets/pdfs/se/Sum_SE_Ch01.pdf":     require("../../assets/pdfs/se/Sum_SE_Ch01.pdf"),
-  "assets/pdfs/se/Sum_SE_Ch02.pdf":     require("../../assets/pdfs/se/Sum_SE_Ch02.pdf"),
-  "assets/pdfs/se/Sum_SE_Ch03.pdf":     require("../../assets/pdfs/se/Sum_SE_Ch03.pdf"),
-  "assets/pdfs/se/Sum_SE_Ch07.pdf":     require("../../assets/pdfs/se/Sum_SE_Ch07.pdf"),
-  "assets/pdfs/se/Sum_SE_Ch08.pdf":     require("../../assets/pdfs/se/Sum_SE_Ch08.pdf"),
-  "assets/pdfs/se/Sum_SE_Ch09.pdf":     require("../../assets/pdfs/se/Sum_SE_Ch09.pdf"),
-};
-
-// ── 2) دالة فتح PDF خارجياً ─────────────────────────────────────────────────
-const openPdf = async (pdfKey: string) => {
-  const module = PDF_MAP[pdfKey];
-  if (!module) return;
-  const asset = Asset.fromModule(module);
-  await asset.downloadAsync();
-  const localUri = FileSystem.cacheDirectory + "open.pdf";
-  await FileSystem.copyAsync({ from: asset.localUri!, to: localUri });
-  if (Platform.OS === "android") {
-    const contentUri = await FileSystem.getContentUriAsync(localUri);
-    await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-      data: contentUri,
-      flags: 1,
-      type: "application/pdf",
-    });
-  }
-};
+import { openPdf, downloadPdf } from "../../utils/pdfDownloader";
+import { PdfManifestEntry } from "../../utils/pdfManifest";
+import pdfManifest from "../../data/pdf-manifest.json";
 
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -118,6 +21,41 @@ export default function ChapterScreen() {
 
   const [completedTopics, setCompletedTopics] = useState<Record<string, boolean>>({});
   const [completedTopicsCount, setCompletedTopicsCount] = useState(0);
+  const [malzamaLoading, setMalzamaLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
+  const openOrDownloadPdf = async (pdfPath: string, type: "malzama" | "summary") => {
+    const filename = pdfPath.split("/").pop() ?? "";
+    const localPath = FileSystem.documentDirectory + "pdfs/" + filename;
+
+    try {
+      const info = await FileSystem.getInfoAsync(localPath);
+      if (info.exists) {
+        await openPdf(localPath);
+        return;
+      }
+    } catch {
+      // File not found or error checking — proceed to download
+    }
+
+    const loadingSetter = type === "malzama" ? setMalzamaLoading : setSummaryLoading;
+    loadingSetter(true);
+    try {
+      const entry = (pdfManifest as { files: PdfManifestEntry[] }).files.find(
+        (f) => f.filename === filename
+      );
+      if (!entry) {
+        Alert.alert("خطأ", "الملف غير موجود في قائمة الملفات");
+        return;
+      }
+      await downloadPdf(entry);
+      await openPdf(localPath);
+    } catch {
+      Alert.alert("خطأ في التحميل", "تعذّر تحميل الملف، تحقق من الاتصال");
+    } finally {
+      loadingSetter(false);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -195,18 +133,28 @@ export default function ChapterScreen() {
             {chapter.malzama && (
               <TouchableOpacity
                 style={[s.pdfBtn, { borderColor: theme.primary + "88" }]}
-                onPress={() => openPdf(chapter.malzama!)}
+                onPress={() => openOrDownloadPdf(chapter.malzama!, "malzama")}
+                disabled={malzamaLoading}
               >
-                <Ionicons name="book-outline" size={16} color={theme.primary} />
+                {malzamaLoading ? (
+                  <ActivityIndicator size="small" color={theme.primary} />
+                ) : (
+                  <Ionicons name="book-outline" size={16} color={theme.primary} />
+                )}
                 <Text style={[s.pdfBtnText, { color: theme.primary }]}>ملزمة</Text>
               </TouchableOpacity>
             )}
             {chapter.summary && (
               <TouchableOpacity
                 style={[s.pdfBtn, { borderColor: theme.secondary + "88" }]}
-                onPress={() => openPdf(chapter.summary!)}
+                onPress={() => openOrDownloadPdf(chapter.summary!, "summary")}
+                disabled={summaryLoading}
               >
-                <Ionicons name="document-text-outline" size={16} color={theme.secondary} />
+                {summaryLoading ? (
+                  <ActivityIndicator size="small" color={theme.secondary} />
+                ) : (
+                  <Ionicons name="document-text-outline" size={16} color={theme.secondary} />
+                )}
                 <Text style={[s.pdfBtnText, { color: theme.secondary }]}>ملخص</Text>
               </TouchableOpacity>
             )}
