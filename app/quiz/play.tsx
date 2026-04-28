@@ -18,6 +18,7 @@ import {
   AnswerMap,
   Language,
   clearSession,
+  getBookmarks,
   getSession,
   isBookmarked,
   removeBookmark,
@@ -93,6 +94,7 @@ export default function QuizPlayScreen() {
     hardMode: string;
     percentage?: string;
     lang?: string;
+    source?: string;
   }>();
   const router = useRouter();
 
@@ -176,8 +178,58 @@ export default function QuizPlayScreen() {
     setSessionChecked(true);
   }, [loadQuestionBank, percentage, order, hardMode, initialLang]);
 
+  const loadBookmarkQuestions = useCallback(async () => {
+    const bookmarkList = await getBookmarks();
+    if (bookmarkList.length === 0) {
+      Alert.alert("لا توجد محفوظات", "احفظ أسئلة أولاً ثم حاول مجدداً", [
+        { text: "حسناً", onPress: () => router.back() },
+      ]);
+      return;
+    }
+
+    const allQuestions: SubjectQuestion[] = [];
+    for (const bookmark of bookmarkList) {
+      const subject = loadSubjectDataById(bookmark.subjectId);
+      if (!subject) continue;
+      for (const chapter of subject.chapters) {
+        for (const topic of chapter.topics) {
+          const found = topic.questions.find(
+            (q) => q.id === bookmark.questionId
+          );
+          if (found) {
+            allQuestions.push(found);
+            break;
+          }
+        }
+      }
+    }
+
+    if (allQuestions.length === 0) {
+      Alert.alert("لا توجد محفوظات", "تعذر العثور على أسئلة محفوظة", [
+        { text: "حسناً", onPress: () => router.back() },
+      ]);
+      return;
+    }
+
+    const final = allQuestions.map((q) => shuffleQuestion(q));
+    questionsRef.current = final;
+    answersRef.current = {};
+    setAnswers({});
+    setQuestions(final);
+    setCurrent(0);
+    setRevealed(false);
+    setLang(initialLang);
+    setTimeLeft(null);
+    setSessionChecked(true);
+  }, [initialLang]);
+
   useEffect(() => {
     const initQuiz = async () => {
+      if (params.source === "bookmarks") {
+        await loadBookmarkQuestions();
+        return;
+      }
+
       const session = await getSession();
 
       if (
@@ -248,8 +300,10 @@ export default function QuizPlayScreen() {
     initialLang,
     loadFresh,
     loadQuestionBank,
+    loadBookmarkQuestions,
     mode,
     order,
+    params.source,
     params.subjectId,
     params.chapterId,
     params.topicId,

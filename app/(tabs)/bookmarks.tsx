@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import {
   removeBookmark,
   clearBookmarks,
@@ -172,6 +173,20 @@ export default function BookmarksScreen() {
         ))}
       </ScrollView>
 
+      {filteredBookmarks.length > 0 && (
+        <TouchableOpacity
+          style={[s.startQuizBtn, { backgroundColor: theme.primary }]}
+          onPress={() =>
+            router.push(
+              "/quiz/play?source=bookmarks&mode=quiz&hardMode=0&order=sequential&percentage=100" as any
+            )
+          }
+        >
+          <Ionicons name="library-outline" size={20} color="#fff" />
+          <Text style={s.startQuizBtnText}>اختبار المحفوظات</Text>
+        </TouchableOpacity>
+      )}
+
       {filteredBookmarks.length === 0 ? (
         <View style={s.emptyBox}>
           <Text style={{ fontSize: 48 }}>🔖</Text>
@@ -276,4 +291,18 @@ const s = StyleSheet.create({
   card: { borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
   option: { flexDirection: "row", alignItems: "center", gap: 10, padding: 10, borderRadius: 8, marginBottom: 6 },
+  startQuizBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    height: 48,
+    gap: 8,
+    marginBottom: 16,
+  },
+  startQuizBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
 });

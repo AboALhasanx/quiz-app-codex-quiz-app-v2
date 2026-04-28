@@ -50,7 +50,7 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 |---|---------|--------|-------|
 | 1 | 🔇 Mute button + sound toggle | ⏸ DEFERRED | APK build only |
 | 2 | ⬅️ Prev/Next navigation in recitation mode | ✅ Done | Last Q shows "Finish" with Alert confirm |
-| 3 | 📚 Bookmarks Quiz | 🔲 TODO | Quiz from saved questions only |
+| 3 | 📚 Bookmarks Quiz | ✅ Done | Button in bookmarks tab, source=bookmarks param |
 | 4 | 📤 Export / Import local data as file | 🔲 TODO | Portable JSON |
 | 5 | ☁️ Full Offline-first Sync | 🔲 TODO | Push ALL local → Firebase when online |
 
@@ -101,6 +101,7 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 2026-04-28 | Phase 2: theme persistence |
 | 2026-04-28 | Deferred sound to APK, created status.md |
 | 2026-04-28 | Phase 3 item 2: Prev/Next navigation in recitation mode |
+| 2026-04-28 | Phase 3 item 3: Bookmarks Quiz feature |
 
 ---
 
