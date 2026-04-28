@@ -1,5 +1,5 @@
 export const lightTheme = {
-  background: "#F8F4EA",
+  background: "#f2f1f0",
   card: "#FFFFFF",
   textPrimary: "#0B1C2E",
   textSecondary: "#526D82",
