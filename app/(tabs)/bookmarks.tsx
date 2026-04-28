@@ -177,9 +177,7 @@ export default function BookmarksScreen() {
         <TouchableOpacity
           style={[s.startQuizBtn, { backgroundColor: theme.primary }]}
           onPress={() =>
-            router.push(
-              "/quiz/play?source=bookmarks&mode=quiz&hardMode=0&order=sequential&percentage=100" as any
-            )
+            router.push("/quiz/setup?source=bookmarks" as any)
           }
         >
           <Ionicons name="library-outline" size={20} color="#fff" />

@@ -105,6 +105,8 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 2026-04-28 | Phase 3 item 4: Export/Import data feature |
 | 2026-04-28 | Phase 3 item 5: Offline-first Sync — all Phase 3 features complete |
 | 2026-04-28 | Phase 4: Settings tab created, logout moved, PDF placeholder added |
+| 2026-04-28 | Phase 4 item 6: Bookmarks Quiz goes through setup screen |
+| 2026-04-28 | Phase 4 item 7: Paper mode reworked — no immediate feedback, end-of-quiz correction |
 
 ---
 
@@ -117,6 +119,8 @@ Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(
 | 3 | PDF download button placeholder | ✅ Done | Shows "قريباً" alert |
 | 4 | Re-enable sound (TODO: AUDIO) | 🔲 TODO | Before APK build |
 | 5 | EAS APK build | 🔲 TODO | eas build -p android --profile preview |
+| 6 | Fix bookmarks quiz → goes through setup | ✅ Done | source=bookmarks param in setup.tsx |
+| 7 | Fix paper mode: no immediate feedback, finish with unanswered check | ✅ Done | getOptionStyle reworked, finish alert added |
 
 ---
 

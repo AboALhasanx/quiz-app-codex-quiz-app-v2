@@ -423,8 +423,39 @@ export default function QuizPlayScreen() {
     }
   };
 
+  const finishWithUnansweredCheck = () => {
+    const unansweredCount = questionsRef.current.filter(
+      (q) => answersRef.current[q.id] === undefined
+    ).length;
+
+    if (unansweredCount > 0) {
+      Alert.alert(
+        "تنبيه",
+        `لديك ${unansweredCount} سؤال لم تجب عليه. هل تريد المراجعة؟`,
+        [
+          {
+            text: "أنا متأكد من الانتهاء",
+            style: "destructive",
+            onPress: finishQuiz,
+          },
+          {
+            text: "مراجعة",
+            style: "cancel",
+          },
+        ]
+      );
+      return;
+    }
+
+    finishQuiz();
+  };
+
   const nextQuestion = () => {
     if (current + 1 >= questions.length) {
+      if (mode === "paper") {
+        finishWithUnansweredCheck();
+        return;
+      }
       finishQuiz();
       return;
     }
@@ -444,6 +475,10 @@ export default function QuizPlayScreen() {
 
   const handleNextOrFinish = () => {
     if (current + 1 >= questions.length) {
+      if (mode === "paper") {
+        finishWithUnansweredCheck();
+        return;
+      }
       Alert.alert(
         "إنهاء الاختبار",
         "هل تريد إنهاء الاختبار الآن؟",

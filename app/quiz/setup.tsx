@@ -20,7 +20,9 @@ export default function QuizSetupScreen() {
     chapterId: string;
     topicId: string;
     percentage?: string;
+    source?: string;
   }>();
+  const isBookmarksMode = params.source === "bookmarks";
   const router = useRouter();
 
   const [sessionType, setSessionType] = useState<SessionType>("quiz");
@@ -28,8 +30,8 @@ export default function QuizSetupScreen() {
   const [hardMode, setHardMode] = useState(false);
   const [order, setOrder] = useState<"random" | "sequential">("random");
   const [percentage, setPercentage] = useState(() => {
-    const value = Number(params.percentage ?? "100");
-    return Number.isFinite(value) && value >= 10 && value <= 100 ? value : 100;
+    const defaultValue = isBookmarksMode ? 100 : Number(params.percentage ?? "100");
+    return Number.isFinite(defaultValue) && defaultValue >= 10 && defaultValue <= 100 ? defaultValue : 100;
   });
 
   const subject = useMemo(() => loadSubjectDataById(params.subjectId ?? ""), [params.subjectId]);
@@ -76,6 +78,9 @@ export default function QuizSetupScreen() {
       order,
     });
 
+    if (isBookmarksMode) {
+      searchParams.set("source", "bookmarks");
+    }
     searchParams.set("mode", mode);
     searchParams.set("hardMode", hardMode ? "1" : "0");
     router.push(`/quiz/play?${searchParams.toString()}` as any);
@@ -83,62 +88,76 @@ export default function QuizSetupScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.background }} contentContainerStyle={s.content}>
-      <View style={[s.headerBox, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}>
-        <View style={[s.headerIcon, { backgroundColor: theme.primary + "22" }]}>
-          <Ionicons name={scopeIcon as any} size={28} color={theme.primary} />
+      {isBookmarksMode ? (
+        <View style={[s.bookmarksNotice, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}>
+          <Ionicons name="bookmark-outline" size={32} color={theme.primary} />
+          <Text style={[s.bookmarksNoticeTitle, { color: theme.textPrimary }]}>
+            اختبار المحفوظات
+          </Text>
+          <Text style={{ color: theme.textSecondary, fontSize: 13, textAlign: "center", lineHeight: 20 }}>
+            سيتم استخدام الأسئلة المحفوظة فقط
+          </Text>
         </View>
-        <Text style={{ color: theme.textSecondary, fontSize: 13, marginBottom: 6 }}>{scopeLabel}</Text>
-        <Text style={{ color: theme.primary, fontSize: 48, fontWeight: "bold", lineHeight: 54 }}>
-          {selectedQuestionCount}
-        </Text>
-        <Text style={{ color: theme.textSecondary, fontSize: 14, marginBottom: 14 }}>{labels.question}</Text>
+      ) : (
+        <>
+          <View style={[s.headerBox, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}>
+            <View style={[s.headerIcon, { backgroundColor: theme.primary + "22" }]}>
+              <Ionicons name={scopeIcon as any} size={28} color={theme.primary} />
+            </View>
+            <Text style={{ color: theme.textSecondary, fontSize: 13, marginBottom: 6 }}>{scopeLabel}</Text>
+            <Text style={{ color: theme.primary, fontSize: 48, fontWeight: "bold", lineHeight: 54 }}>
+              {selectedQuestionCount}
+            </Text>
+            <Text style={{ color: theme.textSecondary, fontSize: 14, marginBottom: 14 }}>{labels.question}</Text>
 
-        <View style={s.headerStats}>
-          <View style={s.headerStat}>
-            <Ionicons name="time-outline" size={14} color={theme.textSecondary} />
-            <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
-              ~{Math.ceil(selectedQuestionCount * 1.5)} دقيقة
-            </Text>
+            <View style={s.headerStats}>
+              <View style={s.headerStat}>
+                <Ionicons name="time-outline" size={14} color={theme.textSecondary} />
+                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
+                  ~{Math.ceil(selectedQuestionCount * 1.5)} دقيقة
+                </Text>
+              </View>
+              <View style={[s.statDivider, { backgroundColor: theme.secondary + "44" }]} />
+              <View style={s.headerStat}>
+                <Ionicons name="albums-outline" size={14} color={theme.textSecondary} />
+                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
+                  {sessionType === "quiz" ? "Quiz" : "Flashcards"}
+                </Text>
+              </View>
+            </View>
           </View>
-          <View style={[s.statDivider, { backgroundColor: theme.secondary + "44" }]} />
-          <View style={s.headerStat}>
-            <Ionicons name="albums-outline" size={14} color={theme.textSecondary} />
-            <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
-              {sessionType === "quiz" ? "Quiz" : "Flashcards"}
-            </Text>
-          </View>
-        </View>
-      </View>
 
-      <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>{labels.sessionType}</Text>
-      <View style={s.row}>
-        {([
-          { value: "quiz", label: labels.quiz },
-        ] as const).map((item) => (
-          <TouchableOpacity
-            key={item.value}
-            style={[
-              s.selectionBtn,
-              {
-                backgroundColor: theme.card,
-                borderColor: sessionType === item.value ? theme.primary : theme.secondary + "44",
-              },
-              sessionType === item.value && { backgroundColor: theme.primary + "15" },
-            ]}
-            onPress={() => setSessionType(item.value)}
-          >
-            <Text
-              style={{
-                color: sessionType === item.value ? theme.primary : theme.textSecondary,
-                fontWeight: "bold",
-                fontSize: 14,
-              }}
-            >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+          <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>{labels.sessionType}</Text>
+          <View style={s.row}>
+            {([
+              { value: "quiz", label: labels.quiz },
+            ] as const).map((item) => (
+              <TouchableOpacity
+                key={item.value}
+                style={[
+                  s.selectionBtn,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: sessionType === item.value ? theme.primary : theme.secondary + "44",
+                  },
+                  sessionType === item.value && { backgroundColor: theme.primary + "15" },
+                ]}
+                onPress={() => setSessionType(item.value)}
+              >
+                <Text
+                  style={{
+                    color: sessionType === item.value ? theme.primary : theme.textSecondary,
+                    fontWeight: "bold",
+                    fontSize: 14,
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
 
       {sessionType === "quiz" && (
         <>
@@ -312,4 +331,13 @@ const s = StyleSheet.create({
   hardModeInfo: { flex: 1, alignItems: "flex-end" },
   startBtn: { borderRadius: 14, padding: 18, alignItems: "center", marginTop: 28, flexDirection: "row", justifyContent: "center", gap: 10 },
   startBtnText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  bookmarksNotice: {
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 24,
+    borderWidth: 1,
+    alignItems: "center",
+    gap: 12,
+  },
+  bookmarksNoticeTitle: { fontSize: 18, fontWeight: "bold" },
 });
