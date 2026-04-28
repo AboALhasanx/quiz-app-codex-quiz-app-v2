@@ -70,7 +70,6 @@ export default function TabsLayout() {
               size={size}
             />
           ),
-          headerShown: false,
         }}
       />
     </Tabs>

@@ -91,8 +91,6 @@ export default function ProfileScreen() {
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={s.content}
     >
-      {/* Header */}
-      <Text style={[s.pageTitle, { color: theme.textPrimary }]}>الإعدادات</Text>
 
       {/* — Section: المظهر — */}
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>المظهر</Text>
