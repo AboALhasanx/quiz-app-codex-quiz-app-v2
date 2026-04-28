@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,12 +16,20 @@ import { useTheme } from "../../utils/ThemeContext";
 import { auth, logoutUser } from "../../utils/firebase";
 import { exportAllData, importAllData } from "../../utils/dataTransfer";
 import { flushAllLocalToFirebase } from "../../utils/syncManager";
+import { getPdfStatuses, countUpdatesAvailable } from "../../utils/pdfManifest";
 
 export default function ProfileScreen() {
   const { theme, isDark, toggle } = useTheme();
   const [syncing, setSyncing] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [pdfUpdateCount, setPdfUpdateCount] = useState(0);
+
+  useEffect(() => {
+    getPdfStatuses()
+      .then((s) => setPdfUpdateCount(countUpdatesAvailable(s)))
+      .catch(() => {});
+  }, []);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -194,17 +202,27 @@ export default function ProfileScreen() {
       <TouchableOpacity
         style={[
           s.card,
-          { backgroundColor: theme.card, borderColor: theme.secondary + "33", opacity: 0.7 },
+          { backgroundColor: theme.card, borderColor: theme.secondary + "33" },
         ]}
-        onPress={() =>
-          Alert.alert("قريباً", "هذه الميزة ستكون متاحة في الإصدار القادم")
-        }
+        onPress={() => router.push("/pdfs" as any)}
         activeOpacity={0.8}
       >
-        <Ionicons name="cloud-download-outline" size={24} color={theme.textSecondary} />
-        <Text style={[s.cardLabel, { color: theme.textSecondary }]}>تحديث الملازم والملخصات</Text>
-        <View style={s.badge}>
-          <Text style={s.badgeText}>قريباً</Text>
+        <Ionicons name="cloud-download-outline" size={24} color={theme.primary} />
+        <View style={s.cardText}>
+          <Text style={[s.cardTitle, { color: theme.textPrimary }]}>تحديث الملازم والملخصات</Text>
+          <Text style={[s.cardSubtitle, { color: theme.textSecondary }]}>
+            تحميل وعرض ملفات PDF للمواد
+          </Text>
+        </View>
+        <View
+          style={[
+            s.badge,
+            { backgroundColor: pdfUpdateCount > 0 ? theme.wrong : theme.correct },
+          ]}
+        >
+          <Text style={s.badgeText}>
+            {pdfUpdateCount > 0 ? String(pdfUpdateCount) : "مُحدث"}
+          </Text>
         </View>
       </TouchableOpacity>
 

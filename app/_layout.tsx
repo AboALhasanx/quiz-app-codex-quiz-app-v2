@@ -85,6 +85,7 @@ function AppContent() {
         <Stack.Screen name="quiz/play"              options={{ headerShown: false }} />
         <Stack.Screen name="quiz/result"            options={{ title: "النتيجة" }} />
         <Stack.Screen name="settings"               options={{ headerShown: false }} />
+        <Stack.Screen name="pdfs"                    options={{ headerShown: false }} />
       </Stack>
     </NavThemeProvider>
   );
