@@ -1,134 +1,75 @@
-# Quiz App — Project Status
+# Project Status — 2026-04-29
 
-## Overview
-- **Project**: Quiz App (React Native + Expo)
-- **Path**: D:\quiz-app-codex-quiz-app-v2
-- **Stack**: Expo 55, React Native 0.83.6, TypeScript, Firebase, AsyncStorage
-- **Target**: Expo Go (dev) → APK (final build)
+## Stack
+- Expo SDK: ~55.0.9
+- React Native: 0.83.2
+- expo-av: ^16.0.8 ⚠️ deprecated → migrate to expo-audio
+- expo-audio: no
+- expo-router: ~55.0.8
+- EAS Build: development, preview, production
+- Target: Android APK (preview profile)
 
----
+## Screens & Routes
+| File | Description |
+|------|-------------|
+| `app/_layout.tsx` | Root layout — auth gate, theme provider, stack navigator |
+| `app/+not-found.tsx` | 404 fallback screen |
+| `app/login.tsx` | Email/password login & registration |
+| `app/settings.tsx` | Settings screen (sync, export/import, sound toggle) |
+| `app/(tabs)/_layout.tsx` | Tab bar layout — 4 tabs: Home, Stats, Bookmarks, Profile |
+| `app/(tabs)/index.tsx` | Home tab — subject list with last quiz result per subject |
+| `app/(tabs)/stats.tsx` | Stats tab — quiz history, per-subject filter, clear all |
+| `app/(tabs)/bookmarks.tsx` | Bookmarks tab — saved questions, subject filter, start quiz |
+| `app/(tabs)/profile.tsx` | Profile/Settings tab — theme, sound, sync, export/import, logout |
+| `app/bookmarks/[questionId].tsx` | Bookmark detail — view saved question with answer |
+| `app/chapter/[id].tsx` | Chapter detail — topics list, progress, start quiz, PDF buttons |
+| `app/quiz/setup.tsx` | Quiz setup — mode, order, hard mode, percentage, start |
+| `app/quiz/play.tsx` | Quiz play — questions, timer, bookmarks, sound, prev/next nav |
+| `app/quiz/result.tsx` | Quiz result — score, review, save, completion sound |
+| `app/subject/[id].tsx` | Subject detail — chapters list, progress, start quiz |
 
-## Current State: ✅ STABLE
-App runs on Expo Go without errors.
+## Utils & Services
+| File | Description |
+|------|-------------|
+| `utils/dataTransfer.ts` | Export/import all data as JSON via expo-sharing |
+| `utils/firebase.ts` | Firebase auth, Firestore CRUD, sync queue |
+| `utils/pdfDownloader.ts` | Download PDFs from GitHub releases, open via expo-sharing |
+| `utils/pdfManifest.ts` | Fetch PDF manifest from GitHub API, cache, status check |
+| `utils/pdfStorage.ts` | AsyncStorage CRUD for PDF download records |
+| `utils/soundManager.ts` | Sound effects (correct/wrong/completed), mute toggle, lazy expo-av |
+| `utils/sounds.ts` | Legacy sound file (unused, kept for reference) |
+| `utils/storage.ts` | Core storage — results, bookmarks, completions, sync queue, session |
+| `utils/subjectDataManager.ts` | GitHub-backed subject data with offline-first fallback |
+| `utils/subjects.ts` | Subject data types, loaders, question helpers |
+| `utils/syncManager.ts` | Flush all local data to Firebase on network restore |
+| `utils/theme.ts` | Light/dark theme color definitions |
+| `utils/ThemeContext.tsx` | React context for theme, persisted via AsyncStorage |
 
----
+## Components
+| File | Description |
+|------|-------------|
+| `components/external-link.tsx` | External URL opener with expo-web-browser |
+| `components/haptic-tab.tsx` | Tab bar with haptic feedback on press |
 
-## Completed Work
+## Data Layer
+- Subject files: `ai_data.json`, `cn_data.json`, `ds_data.json`, `oop_data.json`, `os_data.json`, `se_data.json`, `index.json`
+- GitHub Repo: AboALhasanx/quiz-app-data
+- Release: v1
+- Strategy: offline-first (bundled → downloaded)
 
-### Phase 0 — Expo Go Compatibility Cleanup
-| # | Task | Status |
-|---|------|--------|
-| 1 | Comment out utils/sounds.ts | ✅ Done |
-| 2 | Comment out expo-av in play.tsx | ✅ Done |
-| 3 | Delete flashcards.tsx | ✅ Done |
-| 4 | Remove flashcards route from _layout.tsx | ✅ Done |
-| 5 | Remove flashcards refs from setup.tsx | ✅ Done |
-| 6 | Remove 5 unused packages | ✅ Done |
+## Sound System
+- Library: expo-av (lazy-loaded via require)
+- Manager: `utils/soundManager.ts`
+- Mute key: `"sound_muted"` (AsyncStorage)
+- Volume key: not implemented
+- Features: mute toggle ✅ / volume slider ❌
 
-Removed: expo-symbols, @react-native-community/slider, @react-navigation/bottom-tabs, @react-navigation/elements, @react-navigation/native
+## Known Issues / TODOs
+- [ ] Migrate expo-av → expo-audio (expo-av deprecated in SDK 55)
+- [ ] Add volume slider to settings
+- [ ] `utils/sounds.ts` is unused — consider removing
+- [ ] `app/settings.tsx` is a legacy stack screen — consider consolidating with `app/(tabs)/profile.tsx`
 
-### Phase 1 — High Priority Fixes
-| # | Task | Status |
-|---|------|--------|
-| 1 | Fix require cycle storage.ts ↔ firebase.ts | ✅ Done |
-| 2 | Update react-native to 0.83.6 | ✅ Done |
-| 3 | Update react-native-worklets to 0.7.4 | ✅ Done |
-| 4 | Add .env + google-services.json to .gitignore | ✅ Done |
-
-Fix approach: lazy await import("./firebase") inside saveResult(), saveBookmark(), removeBookmark()
-
-### Phase 2 — Medium Priority Fixes
-| # | Task | Status |
-|---|------|--------|
-| 1 | Persist theme (light/dark) via AsyncStorage key "user_theme" | ✅ Done |
-
----
-
-## Phase 3 — New Features
-
-| # | Feature | Status | Notes |
-|---|---------|--------|-------|
-| 1 | 🔇 Mute button + sound toggle | ⏸ DEFERRED | APK build only |
-| 2 | ⬅️ Prev/Next navigation in recitation mode | ✅ Done | Last Q shows "Finish" with Alert confirm |
-| 3 | 📚 Bookmarks Quiz | ✅ Done | Button in bookmarks tab, source=bookmarks param |
-| 4 | 📤 Export / Import local data as file | ✅ Done | utils/dataTransfer.ts, app/settings.tsx |
-| 5 | ☁️ Full Offline-first Sync | ✅ Done | utils/syncManager.ts, auto on foreground + manual in settings |
-
----
-
-## Deferred Until Final APK Build
-
-| Feature | Files | Search For |
-|---------|-------|------------|
-| Sound effects | utils/sounds.ts, app/quiz/play.tsx | TODO: AUDIO |
-| Mute button | utils/storage.ts, app/quiz/play.tsx | TODO: AUDIO |
-
----
-
-## Key Files
-
-| File | Purpose |
-|------|---------|
-| utils/storage.ts | All local read/write (AsyncStorage) |
-| utils/firebase.ts | Firebase sync layer |
-| utils/ThemeContext.tsx | Light/dark theme |
-| utils/sounds.ts | Sound effects (DISABLED) |
-| app/_layout.tsx | Root navigation stack |
-| app/quiz/play.tsx | Main quiz screen |
-| app/quiz/setup.tsx | Quiz config screen |
-| app/quiz/result.tsx | Results screen |
-| data/subjects/ | Question bank JSON files |
-
-## AsyncStorage Keys
-
-| Key | Type | Purpose |
-|-----|------|---------|
-| results | QuizResult[] | Quiz history |
-| bookmarks | Bookmark[] | Saved questions |
-| sync_queue | SyncQueueItem[] | Offline sync queue |
-| user_theme | "dark"/"light" | Theme preference |
-| mute_sound | boolean | DEFERRED |
-
----
-
-## Session Log
-
-| Date | What Was Done |
-|------|---------------|
-| 2026-04-28 | Phase 0: Expo Go cleanup |
-| 2026-04-28 | Fixed node_modules, connected real Firebase |
-| 2026-04-28 | Phase 1: require cycle fix, package updates, .gitignore |
-| 2026-04-28 | Phase 2: theme persistence |
-| 2026-04-28 | Deferred sound to APK, created status.md |
-| 2026-04-28 | Phase 3 item 2: Prev/Next navigation in recitation mode |
-| 2026-04-28 | Phase 3 item 3: Bookmarks Quiz feature |
-| 2026-04-28 | Phase 3 item 4: Export/Import data feature |
-| 2026-04-28 | Phase 3 item 5: Offline-first Sync — all Phase 3 features complete |
-| 2026-04-28 | Phase 4: Settings tab created, logout moved, PDF placeholder added |
-| 2026-04-28 | Phase 4 item 6: Bookmarks Quiz goes through setup screen |
-| 2026-04-28 | Phase 4 item 7: Paper mode reworked — no immediate feedback, end-of-quiz correction |
-| 2026-04-28 | Phase 4 items 8-10: Fixed bookmarks quiz — 0% result, subject filter, setup params |
-
----
-
-## Phase 4 — UI Polish & Pre-build
-
-| # | Task | Status | Notes |
-|---|------|--------|-------|
-| 1 | Settings tab (profile.tsx) | ✅ Done | Theme, sync, export/import, logout, PDF placeholder |
-| 2 | Remove logout from home tab | ✅ Done | Moved to settings tab |
-| 3 | PDF download button placeholder | ✅ Done | Shows "قريباً" alert |
-| 4 | Re-enable sound (TODO: AUDIO) | 🔲 TODO | Before APK build |
-| 5 | EAS APK build | 🔲 TODO | eas build -p android --profile preview |
-| 6 | Fix bookmarks quiz → goes through setup | ✅ Done | source=bookmarks param in setup.tsx |
-| 7 | Fix paper mode: no immediate feedback, finish with unanswered check | ✅ Done | getOptionStyle reworked, finish alert added |
-| 8 | Fix bookmarks quiz 0% result (multi-subject lookup in result.tsx) | ✅ Done | resolveQuestionsByIds() iterates all subjects |
-| 9 | Fix bookmarks subject filter passed to quiz | ✅ Done | filterSubjectId param through bookmarks→setup→play |
-| 10 | Apply order/percentage/hardMode in loadBookmarkQuestions | ✅ Done | |
-
----
-
-## How to Resume
-1. Read this file first
-2. Next tasks: Phase 4 items 4 & 5 (re-enable sound → APK build)
-3. Use `use build` in opencode for all code changes
+## Last APK Build
+- Profile: preview
+- Status: ✅ built successfully
