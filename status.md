@@ -1,75 +1,117 @@
 # Project Status — 2026-04-29
 
 ## Stack
-- Expo SDK: ~55.0.9
-- React Native: 0.83.2
-- expo-av: ^16.0.8 ⚠️ deprecated → migrate to expo-audio
-- expo-audio: no
-- expo-router: ~55.0.8
-- EAS Build: development, preview, production
-- Target: Android APK (preview profile)
+
+| المكتبة | الإصدار |
+|---------|---------|
+| Expo SDK | ~55.0.9 |
+| React Native | 0.83.2 |
+| expo-audio | ~55.0.14 |
+| expo-router | ~55.0.8 |
+| firebase | ^12.10.0 |
+| @react-native-community/slider | 5.1.2 |
+| @react-native-community/netinfo | 11.5.2 |
+| expo-file-system | ~55.0.12 |
+| expo-sharing | ~55.0.18 |
+| expo-document-picker | ~55.0.13 |
+| TypeScript | ~5.9.2 |
+| EAS Profiles | development, preview, production |
+| Target | Android APK (preview profile) |
+
+---
 
 ## Screens & Routes
-| File | Description |
-|------|-------------|
-| `app/_layout.tsx` | Root layout — auth gate, theme provider, stack navigator |
-| `app/+not-found.tsx` | 404 fallback screen |
-| `app/login.tsx` | Email/password login & registration |
-| `app/settings.tsx` | Settings screen (sync, export/import, sound toggle) |
-| `app/(tabs)/_layout.tsx` | Tab bar layout — 4 tabs: Home, Stats, Bookmarks, Profile |
-| `app/(tabs)/index.tsx` | Home tab — subject list with last quiz result per subject |
-| `app/(tabs)/stats.tsx` | Stats tab — quiz history, per-subject filter, clear all |
-| `app/(tabs)/bookmarks.tsx` | Bookmarks tab — saved questions, subject filter, start quiz |
-| `app/(tabs)/profile.tsx` | Profile/Settings tab — theme, sound, sync, export/import, logout |
-| `app/bookmarks/[questionId].tsx` | Bookmark detail — view saved question with answer |
-| `app/chapter/[id].tsx` | Chapter detail — topics list, progress, start quiz, PDF buttons |
-| `app/quiz/setup.tsx` | Quiz setup — mode, order, hard mode, percentage, start |
-| `app/quiz/play.tsx` | Quiz play — questions, timer, bookmarks, sound, prev/next nav |
-| `app/quiz/result.tsx` | Quiz result — score, review, save, completion sound |
-| `app/subject/[id].tsx` | Subject detail — chapters list, progress, start quiz |
+
+| File | الوصف |
+|------|-------|
+| `app/_layout.tsx` | التخطيط الجذري — مزامنة تلقائية عند العودة للتطبيق |
+| `app/+not-found.tsx` | صفحة 404 |
+| `app/login.tsx` | تسجيل الدخول بالبريد وكلمة المرور |
+| `app/settings.tsx` | شاشة الإعدادات (صوت، مزامنة، تصدير/استيراد) |
+| `app/(tabs)/_layout.tsx` | تخطيط التبويبات — الرئيسية، إحصائياتي، المحفوظات، الإعدادات |
+| `app/(tabs)/index.tsx` | الرئيسية — قائمة المواد مع آخر نتيجة |
+| `app/(tabs)/stats.tsx` | إحصائياتي — سجل الاختبارات والنتائج |
+| `app/(tabs)/bookmarks.tsx` | المحفوظات — الأسئلة المحفوظة مع فلتر المواد |
+| `app/(tabs)/profile.tsx` | الإعدادات — مظهر، صوت، مزامنة، بيانات، ملفات، حساب |
+| `app/bookmarks/[questionId].tsx` | تفاصيل سؤال محفوظ |
+| `app/chapter/[id].tsx` | تفاصيل الفصل — المواضيع والتقدم وزر الاختبار |
+| `app/quiz/setup.tsx` | إعداد الاختبار — الوضع، الترتيب، النسبة المئوية |
+| `app/quiz/play.tsx` | شاشة الاختبار — الأسئلة، المؤقت، المحفوظات، الصوت |
+| `app/quiz/result.tsx` | نتيجة الاختبار — الدرجة، المراجعة، حفظ النتيجة |
+| `app/subject/[id].tsx` | تفاصيل المادة — قائمة الفصول والتقدم |
+
+---
 
 ## Utils & Services
-| File | Description |
-|------|-------------|
-| `utils/dataTransfer.ts` | Export/import all data as JSON via expo-sharing |
-| `utils/firebase.ts` | Firebase auth, Firestore CRUD, sync queue |
-| `utils/pdfDownloader.ts` | Download PDFs from GitHub releases, open via expo-sharing |
-| `utils/pdfManifest.ts` | Fetch PDF manifest from GitHub API, cache, status check |
-| `utils/pdfStorage.ts` | AsyncStorage CRUD for PDF download records |
-| `utils/soundManager.ts` | Sound effects (correct/wrong/completed), mute toggle, lazy expo-av |
-| `utils/sounds.ts` | Legacy sound file (unused, kept for reference) |
-| `utils/storage.ts` | Core storage — results, bookmarks, completions, sync queue, session |
-| `utils/subjectDataManager.ts` | GitHub-backed subject data with offline-first fallback |
-| `utils/subjects.ts` | Subject data types, loaders, question helpers |
-| `utils/syncManager.ts` | Flush all local data to Firebase on network restore |
-| `utils/theme.ts` | Light/dark theme color definitions |
-| `utils/ThemeContext.tsx` | React context for theme, persisted via AsyncStorage |
+
+| File | الوصف |
+|------|-------|
+| `utils/storage.ts` | التخزين الرئيسي — النتائج، المحفوظات، الإكمال، طابور المزامنة، الجلسة |
+| `utils/firebase.ts` | Firebase Auth + Firestore CRUD + طابور المزامنة |
+| `utils/soundManager.ts` | إدارة الصوت — تشغيل، كتم، مستوى الصوت (expo-audio) |
+| `utils/subjectDataManager.ts` | بيانات المواد من GitHub مع نسخة مدمجة كبديل |
+| `utils/subjects.ts` | أنواع البيانات، محملات المواد، مساعدات الأسئلة |
+| `utils/pdfManifest.ts` | جلب قائمة PDFs من GitHub API مع تخزين مؤقت |
+| `utils/pdfDownloader.ts` | تحميل PDFs من GitHub releases |
+| `utils/pdfStorage.ts` | تخزين سجلات تحميل PDF في AsyncStorage |
+| `utils/dataTransfer.ts` | تصدير/استيراد جميع البيانات كملف JSON |
+| `utils/syncManager.ts` | مزامنة جميع البيانات المحلية إلى Firebase |
+| `utils/theme.ts` | تعريف ألوان الثيم الفاتح والداكن |
+| `utils/ThemeContext.tsx` | React Context للثيم مع حفظ في AsyncStorage |
+
+---
 
 ## Components
-| File | Description |
-|------|-------------|
-| `components/external-link.tsx` | External URL opener with expo-web-browser |
-| `components/haptic-tab.tsx` | Tab bar with haptic feedback on press |
+
+| File | الوصف |
+|------|-------|
+| `components/haptic-tab.tsx` | تبويب مع اهتزاز عند الضغط |
+| `components/external-link.tsx` | رابط خارجي يفتح في المتصفح |
+
+---
 
 ## Data Layer
-- Subject files: `ai_data.json`, `cn_data.json`, `ds_data.json`, `oop_data.json`, `os_data.json`, `se_data.json`, `index.json`
-- GitHub Repo: AboALhasanx/quiz-app-data
-- Release: v1
-- Strategy: offline-first (bundled → downloaded)
+
+| الملف | الوصف |
+|-------|-------|
+| `data/subjects/index.json` | فهرس المواد الدراسية |
+| `data/subjects/ai_data.json` | أسئلة الذكاء الاصطناعي |
+| `data/subjects/cn_data.json` | أسئلة الشبكات |
+| `data/subjects/ds_data.json` | أسئلة هياكل البيانات |
+| `data/subjects/oop_data.json` | أسئلة البرمجة الكائنية |
+| `data/subjects/os_data.json` | أسئلة أنظمة التشغيل |
+| `data/subjects/se_data.json` | أسئلة هندسة البرمجيات |
+
+- **GitHub Repo:** [AboALhasanx/quiz-app-data](https://github.com/AboALhasanx/quiz-app-data)
+- **Release:** v1
+- **الاستراتيجية:** offline-first — الملفات المحمّلة أولاً ← الملفات المدمجة في APK
+
+---
 
 ## Sound System
-- Library: expo-av (lazy-loaded via require)
-- Manager: `utils/soundManager.ts`
-- Mute key: `"sound_muted"` (AsyncStorage)
-- Volume key: not implemented
-- Features: mute toggle ✅ / volume slider ❌
+
+| البند | القيمة |
+|-------|--------|
+| المكتبة | expo-audio (مهاجرة من expo-av) |
+| ملف الإدارة | `utils/soundManager.ts` |
+| مفتاح الكتم | `sound_muted` (AsyncStorage) |
+| مفتاح مستوى الصوت | `sound_volume` (AsyncStorage) |
+| كتم الصوت | ✅ يعمل |
+| شريط مستوى الصوت | ✅ يعمل |
+| أصوات الاختبار | correct.mp3, wrong.mp3, completed.mp3 |
+
+---
 
 ## Known Issues / TODOs
-- [ ] Migrate expo-av → expo-audio (expo-av deprecated in SDK 55)
-- [ ] Add volume slider to settings
-- [ ] `utils/sounds.ts` is unused — consider removing
-- [ ] `app/settings.tsx` is a legacy stack screen — consider consolidating with `app/(tabs)/profile.tsx`
+
+- لا توجد مشاكل معروفة حالياً
+- التطبيق يعمل بشكل مستقر على Expo Go
+
+---
 
 ## Last APK Build
-- Profile: preview
-- Status: ✅ built successfully
+
+| البند | القيمة |
+|-------|--------|
+| Profile | preview |
+| Status | ✅ built successfully |
