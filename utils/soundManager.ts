@@ -1,48 +1,68 @@
+/**
+ * soundManager.ts
+ * Migrated from expo-av → expo-audio (Expo SDK 55)
+ */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const MUTE_KEY = "sound_muted";
+const MUTE_KEY   = "sound_muted";
+const VOLUME_KEY = "sound_volume";
 
-// ── Mute state (in-memory + persisted) ───────────────────────────────────────
-let _muted = false;
+let _muted  = false;
+let _volume = 1.0;
 
-export async function loadMuteState(): Promise<void> {
+// ── Persist ───────────────────────────────────────────────────────────────────
+export async function loadSoundSettings(): Promise<void> {
   try {
-    const val = await AsyncStorage.getItem(MUTE_KEY);
-    _muted = val === "true";
-  } catch {
-    _muted = false;
-  }
+    const [m, v] = await Promise.all([
+      AsyncStorage.getItem(MUTE_KEY),
+      AsyncStorage.getItem(VOLUME_KEY),
+    ]);
+    if (m !== null) _muted  = m === "true";
+    if (v !== null) _volume = parseFloat(v);
+  } catch { /* ignore */ }
 }
 
-export function isMuted(): boolean {
-  return _muted;
+async function saveSoundSettings(): Promise<void> {
+  try {
+    await Promise.all([
+      AsyncStorage.setItem(MUTE_KEY,   String(_muted)),
+      AsyncStorage.setItem(VOLUME_KEY, String(_volume)),
+    ]);
+  } catch { /* ignore */ }
 }
+
+// ── Backward compat alias (used in play.tsx) ─────────────────────────────────
+export const loadMuteState = loadSoundSettings;
+
+// ── Mute ──────────────────────────────────────────────────────────────────────
+export function isMuted(): boolean { return _muted; }
 
 export async function setMuted(value: boolean): Promise<void> {
   _muted = value;
-  try {
-    await AsyncStorage.setItem(MUTE_KEY, value ? "true" : "false");
-  } catch {
-    // ignore
-  }
+  await saveSoundSettings();
 }
 
-export function toggleMute(): boolean {
-  const next = !_muted;
-  setMuted(next);
-  return next;
+export async function toggleMute(): Promise<void> {
+  await setMuted(!_muted);
+}
+
+// ── Volume ────────────────────────────────────────────────────────────────────
+export function getVolume(): number { return _volume; }
+
+export async function setVolume(value: number): Promise<void> {
+  _volume = Math.max(0, Math.min(1, value));
+  await saveSoundSettings();
 }
 
 // ── Sound cache ───────────────────────────────────────────────────────────────
 const soundCache: Record<string, any> = {};
 
-async function getSound(key: string, asset: number): Promise<any | null> {
+async function getPlayer(key: string, asset: number): Promise<any | null> {
   try {
     if (!soundCache[key]) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { Audio } = require("expo-av") as typeof import("expo-av");
-      const { sound } = await Audio.Sound.createAsync(asset);
-      soundCache[key] = sound;
+      const { createAudioPlayer } = require("expo-audio");
+      const player = createAudioPlayer(asset);
+      soundCache[key] = player;
     }
     return soundCache[key];
   } catch {
@@ -50,41 +70,27 @@ async function getSound(key: string, asset: number): Promise<any | null> {
   }
 }
 
-// ── Play helpers ──────────────────────────────────────────────────────────────
+// ── Play ──────────────────────────────────────────────────────────────────────
 async function play(key: string, asset: number): Promise<void> {
   if (_muted) return;
   try {
-    const sound = await getSound(key, asset);
-    if (!sound) return;
-    await sound.setPositionAsync(0);
-    await sound.playAsync();
-  } catch {
-    // ignore sound errors — never crash the app
-  }
+    const player = await getPlayer(key, asset);
+    if (!player) return;
+    player.volume = _volume;
+    player.seekTo(0);
+    player.play();
+  } catch { /* never crash the app */ }
 }
 
-export async function playCorrect(): Promise<void> {
-  await play("correct", require("../assets/sounds/correct.mp3"));
-}
+// ── Public API ────────────────────────────────────────────────────────────────
+export const playCorrect   = () => play("correct",   require("../assets/sounds/correct.mp3"));
+export const playWrong     = () => play("wrong",     require("../assets/sounds/wrong.mp3"));
+export const playCompleted = () => play("completed", require("../assets/sounds/completed.mp3"));
 
-export async function playWrong(): Promise<void> {
-  await play("wrong", require("../assets/sounds/wrong.mp3"));
-}
-
-export async function playCompleted(): Promise<void> {
-  await play("completed", require("../assets/sounds/completed.mp3"));
-}
-
-// ── Unload all sounds (call on app background) ────────────────────────────────
-export async function unloadSounds(): Promise<void> {
+// ── Unload ────────────────────────────────────────────────────────────────────
+export function unloadSounds(): void {
   for (const key of Object.keys(soundCache)) {
-    try {
-      if (soundCache[key]) {
-        await soundCache[key].unloadAsync();
-      }
-      delete soundCache[key];
-    } catch {
-      // ignore
-    }
+    try { soundCache[key]?.remove?.(); } catch { /* ignore */ }
+    delete soundCache[key];
   }
 }

@@ -127,9 +127,9 @@ export default function QuizPlayScreen() {
     loadMuteState().then(() => setMutedState(isMuted()));
   }, []);
 
-  const handleToggleMute = () => {
-    const next = toggleMute();
-    setMutedState(next);
+  const handleToggleMute = async () => {
+    await toggleMute();
+    setMutedState(isMuted());
   };
 
   const loadQuestionBank = useCallback((): SubjectQuestion[] => {

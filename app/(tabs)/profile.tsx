@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import Slider from "@react-native-community/slider";
 import * as DocumentPicker from "expo-document-picker";
 import { useTheme } from "../../utils/ThemeContext";
 import { auth, logoutUser } from "../../utils/firebase";
@@ -25,6 +26,13 @@ import {
   countDataUpdatesAvailable,
   DataAssetStatus,
 } from "../../utils/subjectDataManager";
+import {
+  getVolume,
+  setVolume,
+  loadSoundSettings,
+  isMuted,
+  setMuted,
+} from "../../utils/soundManager";
 
 export default function ProfileScreen() {
   const { theme, isDark, toggle } = useTheme();
@@ -34,8 +42,14 @@ export default function ProfileScreen() {
   const [pdfUpdateCount, setPdfUpdateCount] = useState(0);
   const [syncState, setSyncState] = useState<"idle"|"checking"|"downloading"|"done"|"up_to_date"|"error">("idle");
   const [syncProgress, setSyncProgress] = useState({ current: 0, total: 0 });
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [volume, setVolumeState] = useState(1.0);
 
   useEffect(() => {
+    loadSoundSettings().then(() => {
+      setSoundEnabled(!isMuted());
+      setVolumeState(getVolume());
+    });
     Promise.all([
       getPdfStatuses(),
       getSubjectDataStatuses().catch(() => [] as DataAssetStatus[]),
@@ -195,18 +209,39 @@ export default function ProfileScreen() {
 
       {/* — Section: الصوت — */}
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>الصوت</Text>
-      <View
-        style={[
-          s.card,
-          { backgroundColor: theme.card, borderColor: theme.secondary + "33", opacity: 0.5 },
-        ]}
-      >
-        <Ionicons name="volume-medium-outline" size={24} color={theme.textSecondary} />
-        <Text style={[s.cardLabel, { color: theme.textSecondary }]}>التحكم بالصوت</Text>
-        <View style={s.badge}>
-          <Text style={s.badgeText}>قريباً</Text>
-        </View>
+      <View style={[s.card, { backgroundColor: theme.card, borderColor: theme.secondary + "33" }]}>
+        <Ionicons name={soundEnabled ? "volume-high-outline" : "volume-mute-outline"} size={24} color={theme.primary} />
+        <Text style={[s.cardLabel, { color: theme.textPrimary }]}>الأصوات</Text>
+        <Switch
+          value={soundEnabled}
+          onValueChange={async (value) => {
+            await setMuted(!value);
+            setSoundEnabled(value);
+          }}
+          trackColor={{ false: theme.secondary + "66", true: theme.primary }}
+          thumbColor={theme.textPrimary}
+        />
       </View>
+      {soundEnabled && (
+        <View style={[s.card, { backgroundColor: theme.card, borderColor: theme.secondary + "33", paddingVertical: 8 }]}>
+          <Ionicons name="volume-low-outline" size={20} color={theme.textSecondary} />
+          <Slider
+            style={{ flex: 1, marginHorizontal: 8 }}
+            minimumValue={0}
+            maximumValue={1}
+            step={0.05}
+            value={volume}
+            onValueChange={async (value) => {
+              setVolumeState(value);
+              await setVolume(value);
+            }}
+            minimumTrackTintColor={theme.primary}
+            maximumTrackTintColor={theme.secondary ? theme.secondary + "44" : "#ccc"}
+            thumbTintColor={theme.primary}
+          />
+          <Ionicons name="volume-high-outline" size={20} color={theme.primary} />
+        </View>
+      )}
 
       {/* — Section: المزامنة — */}
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>المزامنة</Text>

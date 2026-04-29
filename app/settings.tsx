@@ -15,7 +15,14 @@ import * as DocumentPicker from "expo-document-picker";
 import { useTheme } from "../utils/ThemeContext";
 import { exportAllData, importAllData } from "../utils/dataTransfer";
 import { flushAllLocalToFirebase } from "../utils/syncManager";
-import { loadMuteState, isMuted, toggleMute } from "../utils/soundManager";
+import Slider from "@react-native-community/slider";
+import {
+  loadSoundSettings,
+  isMuted,
+  setMuted,
+  getVolume,
+  setVolume,
+} from "../utils/soundManager";
 
 export default function SettingsScreen() {
   const { theme } = useTheme();
@@ -23,14 +30,23 @@ export default function SettingsScreen() {
   const [importing, setImporting] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [volume, setVolumeState] = useState(1.0);
 
   useEffect(() => {
-    loadMuteState().then(() => setSoundEnabled(!isMuted()));
+    loadSoundSettings().then(() => {
+      setSoundEnabled(!isMuted());
+      setVolumeState(getVolume());
+    });
   }, []);
 
-  const handleSoundToggle = (value: boolean) => {
-    toggleMute();
+  const handleSoundToggle = async (value: boolean) => {
+    await setMuted(!value);
     setSoundEnabled(value);
+  };
+
+  const handleVolumeChange = async (value: number) => {
+    setVolumeState(value);
+    await setVolume(value);
   };
 
   const handleExport = async () => {
@@ -100,7 +116,7 @@ export default function SettingsScreen() {
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>صوت</Text>
 
       <View style={[s.card, { backgroundColor: theme.card, borderColor: theme.secondary + "44" }]}>
-        <Ionicons name="volume-high-outline" size={24} color={theme.primary} />
+        <Ionicons name={soundEnabled ? "volume-high-outline" : "volume-mute-outline"} size={24} color={theme.primary} />
         <Text style={[s.cardLabel, { color: theme.textPrimary, flex: 1 }]}>الأصوات</Text>
         <Switch
           value={soundEnabled}
@@ -109,6 +125,23 @@ export default function SettingsScreen() {
           thumbColor={theme.textPrimary}
         />
       </View>
+      {soundEnabled && (
+        <View style={[s.card, { backgroundColor: theme.card, borderColor: theme.secondary + "44", paddingVertical: 8 }]}>
+          <Ionicons name="volume-low-outline" size={20} color={theme.textSecondary} />
+          <Slider
+            style={{ flex: 1, marginHorizontal: 8 }}
+            minimumValue={0}
+            maximumValue={1}
+            step={0.05}
+            value={volume}
+            onValueChange={handleVolumeChange}
+            minimumTrackTintColor={theme.primary}
+            maximumTrackTintColor={theme.secondary ? theme.secondary + "44" : "#ccc"}
+            thumbTintColor={theme.primary}
+          />
+          <Ionicons name="volume-high-outline" size={20} color={theme.primary} />
+        </View>
+      )}
 
       <Text style={[s.sectionTitle, { color: theme.textSecondary }]}>
         المزامنة
